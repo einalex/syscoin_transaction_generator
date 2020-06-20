@@ -14,6 +14,7 @@ from stg.logger import logger
 if not "raw_input" in dir():
     raw_input = input
 
+
 def ask_user(question):
     reply = str(raw_input("{:} (Y/n): ".format(question))).lower().strip()
     try:
@@ -47,7 +48,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # account for argparse inability to create a list of strings
-    args.sat = args.sat if isinstance(args.sat,list) else [args.sat]
+    args.sat = args.sat if isinstance(args.sat, list) else [args.sat]
 
     if args.sat:
         logger.info("Starting as the Hub node")
@@ -110,6 +111,9 @@ if __name__ == "__main__":
 
 
     # TODO: ask satellite systems for addresses
+    if args.sat:
+        simulator.
+        communicator.get_addresses()
 
     # --- on satellite system:
     # TODO: connect to local syscoind
@@ -124,7 +128,7 @@ if __name__ == "__main__":
     # TODO: check requirements of patterns,
     # TODO: create new addresses according to pattern requirements
     # TODO: distribute tokens among generated addresses
-    # TODO: wait for comfirmation
+    # TODO: wait for confirmation
     # TODO: report ready state to central system
 
     # --- on central system:

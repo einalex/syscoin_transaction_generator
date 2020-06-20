@@ -1,22 +1,38 @@
 import socket
+import json
 
 from stg.logger import logger
 from stg.scrambler import Scrambler
 
+
+
+class Coder(object):
+
+    def encode(self, obj):
+        bytes(string, 'utf-8')
+        return bytes(json.dumps(obj), 'utf-8')
+
+    def decode(self, message):
+        return json.parse(message.decode("utf-8"))
+
+
+
 class Communicator(object):
 
     def __init__(self, hosts, port, key):
-        self.connections = []
+        self.connections = {}
+        self.coder = Coder()
+        self.ip = self._get_ip()
         # connect to satellite systems if we're the hub
         for host in hosts:
             connection = Connection((host, port), key)
-            self.connections.append(connection)
+            self.connections[host] = connection
             connection.establish()
 
         # wait for connection from the hub if we're a satellite system
         if not hosts:
-            connection = Connection((self._get_ip(), port), key)
-            self.connections.append(connection)
+            connection = Connection((self.ip, port), key)
+            self.connections[self.ip] = connection
             connection.anticipate()
 
 
@@ -31,6 +47,13 @@ class Communicator(object):
         finally:
             s.close()
         return IP
+
+
+    def send(self, message):
+        plaintext = self.coder.encode(message)
+        ciphertext = self.scrambler.encrypt(plaintext)
+        for recipient in message["recipients"]:
+            self.connections[recipient].send(ciphertext)
 
 
 
@@ -48,9 +71,6 @@ class Connection(object):
     def anticipate(self):
         self.socket.bind(self.address)
         self.socket.listen(1)
-        # self.context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-        # self.context.set_ciphers("ALL")
-        # self.context.check_hostname = False
         self.connection, self.remote_address = self.socket.accept()
         logger.info('Connected to {:}'.format(self.remote_address))
         while True:
@@ -63,9 +83,6 @@ class Connection(object):
     def establish(self):
         logger.debug("Connecting to {:}".format(self.address))
         self.socket.connect(self.address)
-        # self.context = ssl.SSLContext(ssl.PROTOCOL_TLS)
-        # self.context.set_ciphers("ALL")
-        # self.context.check_hostname = False
         logger.info("Connected to {:}".format(self.address))
         ciphertext = self.scrambler.encrypt('Hello, world')
         self.socket.sendall(ciphertext)
