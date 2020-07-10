@@ -1,31 +1,31 @@
 import socket
 import json
+from concurrent.futures import ThreadPoolExecutor
 
 from stg.logger import logger
 from stg.scrambler import Scrambler
-
-
+from stg.messages import createMessage
 
 class Coder(object):
 
     def encode(self, obj):
-        bytes(string, 'utf-8')
         return bytes(json.dumps(obj), 'utf-8')
 
     def decode(self, message):
         return json.parse(message.decode("utf-8"))
 
 
-
 class Communicator(object):
 
     def __init__(self, hosts, port, key):
         self.connections = {}
+        self.connection_list = []
         self.coder = Coder()
         self.ip = self._get_ip()
         # connect to satellite systems if we're the hub
         for host in hosts:
             connection = Connection((host, port), key)
+            self.connection_list.append(connection)
             self.connections[host] = connection
             connection.establish()
 
@@ -34,7 +34,6 @@ class Communicator(object):
             connection = Connection((self.ip, port), key)
             self.connections[self.ip] = connection
             connection.anticipate()
-
 
     def _get_ip(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -48,13 +47,28 @@ class Communicator(object):
             s.close()
         return IP
 
-
     def send(self, message):
         plaintext = self.coder.encode(message)
         ciphertext = self.scrambler.encrypt(plaintext)
         for recipient in message["recipients"]:
             self.connections[recipient].send(ciphertext)
 
+    def _receive(self, connection):
+        paket = connection.receive()
+        return self.coder.decode(paket)
+
+    def receive(self):
+        with ThreadPoolExecutor(max_workers=len(self.connections)) as executor:
+            futures = [executor.submit(self._receive, connection)
+                       for recipient, connection in self.connections.items()]
+            messages = [f.result() for f in futures]
+        return messages
+
+    def create_single_message(self, typ, connection, payload):
+        return createMessage([connection.address[0]], typ, payload)
+
+    def create_message(self, typ, payload):
+        return createMessage(self.connections.keys(), typ, payload)
 
 
 class Connection(object):
@@ -67,34 +81,30 @@ class Connection(object):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         # self.socket.settimeout(timeout)
 
-
     def anticipate(self):
         self.socket.bind(self.address)
         self.socket.listen(1)
-        self.connection, self.remote_address = self.socket.accept()
+        self.socket, self.remote_address = self.socket.accept()
         logger.info('Connected to {:}'.format(self.remote_address))
-        while True:
-            data = self.connection.recv(4096)
-            if not data: break
-            plain = self.scrambler.decrypt(data)
-            print(plain)
-
 
     def establish(self):
         logger.debug("Connecting to {:}".format(self.address))
         self.socket.connect(self.address)
         logger.info("Connected to {:}".format(self.address))
-        ciphertext = self.scrambler.encrypt('Hello, world')
-        self.socket.sendall(ciphertext)
-
 
     def close(self):
         self.socket.close()
 
-
     def send(self, packet):
-        self.socket.send(packet)
-
+        # self.socket.send(packet)
+        ciphertext = self.scrambler.encrypt(packet)
+        self.socket.sendall(ciphertext)
 
     def receive(self):
-        return self.socket.receive(self.buffer_size)
+        # return self.socket.recv(self.buffer_size)
+        while True:
+            ciphertext = self.socket.recv(self.buffer_size)
+            if not ciphertext:
+                break
+            packet = self.scrambler.decrypt(ciphertext)
+            return packet

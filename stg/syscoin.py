@@ -28,9 +28,9 @@ class Syscoin(object):
         self.addresses += addresses
         return addresses
 
-    def send_sys(self, from_address, to_addresss, amount):
-        pass
-
+    def send_tokens(self, assetGuid, amount, addressTo):
+        addressFrom = self.addresses.pop()
+        self.assetAllocationSend(assetGuid, addressFrom, addressTo, amount)
 
     def get_sys_balance(self, address):
         answer = self.addressBalance(address)
