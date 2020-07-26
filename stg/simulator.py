@@ -1,4 +1,4 @@
-from datetime import datetime
+import time
 import random
 
 # TODO: research tx size
@@ -61,12 +61,12 @@ class Simulator(object):
 
     def start(self):
         self.generate_timestamps()
-        self.start = datetime.now()
+        self.start = int(time.time())
         while self.timestamps:
             self.loop()
 
     def loop(self):
-        now = datetime.now()
+        now = int(time.time())
         if now > self.start + self.timestamps[0]:
             del(self.timestamps[0])
             self.syscoin.send_tokens(self.assetGuid, self.value, self.hubAddress)
