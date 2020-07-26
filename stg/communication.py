@@ -68,7 +68,7 @@ class Communicator(object):
         return createMessage([connection.address[0]], typ, payload)
 
     def create_message(self, typ, payload):
-        return createMessage(self.connections.keys(), typ, payload)
+        return createMessage(list(self.connections.keys()), typ, payload)
 
 
 class Connection(object):
