@@ -122,6 +122,9 @@ class Syscoin(object):
         # if response.status_code == 500:
         #     return self.createWallet("experiment", blank=False)
 
+    def sendFrom(self, fromAddress, toAddress, amount):
+        return self.callFunction("sendfrom", {"params": [fromAddress, toAddress, amount]})
+
     def sendToAddress(self, address, amount, comment="", comment_to="",
                       subtractFeeFromAmount=False, replaceable=False,
                       confTarget=1, estimateMode="UNSET", avoidReuse=False):

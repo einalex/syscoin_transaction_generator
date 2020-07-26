@@ -86,7 +86,8 @@ class Simulator(object):
                     time_index = str(timestamps[node_id][0]//60)
                     for index in range(patterns[node_id][time_index]):
                         toAddress = addresses[node_id].pop()
-                        self.syscoin.sendToAddress(toAddress, self.tx_fee)
+                        self.syscoin.sendFrom(self.hubAddress, toAddress,
+                                              self.tx_fee)
                         txid = self.syscoin.send_tokens(self.value,
                                                         toAddress,
                                                         self.hubAddress)
