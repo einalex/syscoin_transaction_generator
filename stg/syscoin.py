@@ -64,13 +64,18 @@ class Syscoin(object):
         addressFrom = self.addresses.pop()
         return (addressFrom, self.send_tokens(amount, addressTo, addressFrom))
 
-    def get_sys_balance(self, address):
-        answer = self.addressBalance(address)
+    def get_sys_balance(self):
+        answer = self.getBalance()
         return answer
 
     def get_token_balance(self, address):
         answer = self.assetAllocationBalance(self.guid, address)
         return answer
+
+    def getBalance(self):
+        answer = self.callFunction("getbalance")
+        if answer.ok:
+            return answer.json()["result"]
 
     def getNewAddress(self, label="", addressType="bech32"):
         answer = self.callFunction("getnewaddress",

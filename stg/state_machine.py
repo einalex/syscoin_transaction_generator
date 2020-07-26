@@ -80,7 +80,7 @@ class Hub(StateMachine):
     def start(self):
         self.start_simulator()
         # calculate required sys fees and token balances
-        self.check_funds()
+        # self.check_funds()
         key = self.get_user_consent()
         self.communicator = Communicator(self.args.sat, self.args.port, key)
 
@@ -172,7 +172,7 @@ class Hub(StateMachine):
 
     def check_funds(self):
         # check balance in address against fee and token projection
-        sys_have = self.syscoin.get_sys_balance(self.args.addr)
+        sys_have = self.syscoin.get_sys_balance()
         sys_need = self.simulator.get_gas_cost()
         sys_difference = sys_need - sys_have
         if sys_difference > 0:
