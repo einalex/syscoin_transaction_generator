@@ -159,16 +159,16 @@ class Hub(StateMachine):
                     (index, totals[index]))
             self.communicator.send(message)
         messages = self.communicator.receive()
-        addresses = {}
+        all_addresses = {}
         for message in messages:
             if message["type"] == ADDRESS_RESPONSE:
                 node_id, addresses = message["payload"]
-                addresses[node_id] = addresses
+                all_addresses[node_id] = addresses
             else:
                 logger.error(("Received unexpected "
                               "message type: {:}").format(message["type"]))
                 sys.exit(6)
-        return addresses
+        return all_addresses
 
     def check_funds(self):
         # check balance in address against fee and token projection
