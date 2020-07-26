@@ -81,7 +81,7 @@ class Scrambler(object):
 
 
     def encrypt(self, plaintext):
-        return self.encryptor.encrypt(pad(plaintext.encode(), 16))
+        return self.encryptor.encrypt(pad(plaintext, 16))
 
 
     def decrypt(self, ciphertext):

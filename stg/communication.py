@@ -12,7 +12,7 @@ class Coder(object):
         return bytes(json.dumps(obj), 'utf-8')
 
     def decode(self, message):
-        return json.loads(message.decode("utf-8"))
+        return json.loads(message)
 
 
 class Communicator(object):
