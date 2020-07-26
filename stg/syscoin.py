@@ -1,14 +1,10 @@
 import requests
-# from requests.auth import HTTPBasicAuth
-import json
-
-
-from stg.logger import logger
 
 
 class Syscoin(object):
 
-    def __init__(self, asset_guid, hostname="localhost", port=18370, username="u", password="kF0DpJsphi", useSSL=False):
+    def __init__(self, asset_guid, hostname="localhost", port=18370,
+                 username="u", password="kF0DpJsphi", useSSL=False):
         http = "https://" if useSSL else "http://"
         self.url = "{:}{:}:{:}/".format(http, hostname, port)
         self.auth = requests.auth.HTTPBasicAuth(username, password)
@@ -59,7 +55,7 @@ class Syscoin(object):
         hex = self.assetAllocationSend(self.guid, addressFrom,
                                        addressTo, amount)
         transaction = self.signRawTransactionWithWallet(hex)
-        return self.sendRawTransaction(transaction) # returns txid
+        return self.sendRawTransaction(transaction)  # returns txid
 
     def send_tokens_final(self, amount, addressTo):
         addressFrom = self.addresses.pop()
@@ -75,63 +71,71 @@ class Syscoin(object):
         print(answer)
         return answer
 
-
     def getNewAddress(self, label="", addressType="bech32"):
-        answer = self.callFunction("getnewaddress", {"params": [label, addressType]})
+        answer = self.callFunction("getnewaddress",
+                                   {"params": [label, addressType]})
         if answer.ok:
             return answer.json()["result"]
 
-
     def getAddressesByLabel(self, label):
         return self.callFunction("getaddressesbylabel", {"params": [label]})
-
 
     def addressBalance(self, address):
         answer = self.callFunction("addressbalance", {"params": [address]})
         if answer.ok:
             return answer.json()["result"]["amount"]
 
-
     def assetAllocationBalance(self, assetGuid, address):
-        answer = self.callFunction("assetallocationbalance", {"params": [assetGuid, address]})
+        answer = self.callFunction("assetallocationbalance",
+                                   {"params": [assetGuid, address]})
         if answer.ok:
             return answer.json()["result"]["amount"]
 
+    def assetAllocationBalances(self, assetGuid, addresses):
+        address_string = "["
+        for address in addresses:
+            address_string += '\"' + address + '\",'
+        address_string[-1] = "]"
+        answer = self.callFunction("assetallocationbalances",
+                                   {"params": [assetGuid, address_string]})
+        return answer
 
     def assetAllocationSend(self, assetGuid, addressFrom, addressTo, amount):
-        answer = self.callFunction("assetallocationsend", {"params": [assetGuid, addressFrom, addressTo, amount]})
+        answer = self.callFunction("assetallocationsend",
+                                   {"params": [assetGuid, addressFrom,
+                                               addressTo, amount]})
         if answer.ok:
             return answer.json()["result"]["hex"]
 
-
-    def createWallet(self, walletName, passphrase="", disablePrivKeys=False, blank=False, avoid_reuse=False):
-        return self.callFunction("createwallet", {"params": [walletName, disablePrivKeys, blank, passphrase, avoid_reuse]})
-
+    def createWallet(self, walletName, passphrase="", disablePrivKeys=False,
+                     blank=False, avoid_reuse=False):
+        return self.callFunction("createwallet",
+                                 {"params": [walletName, disablePrivKeys,
+                                             blank, passphrase, avoid_reuse]})
 
     def loadWallet(self):
         response = self.callFunction("loadwallet", {"params": ["experiment"]})
         # if response.status_code == 500:
         #     return self.createWallet("experiment", blank=False)
 
-    def sendToAddress(self, address, amount, comment="", comment_to="", subtractFeeFromAmount=False, replaceable=False, confTarget=1, estimateMode="UNSET", avoidReuse=False):
-        return self.callFunction("sendtoaddress", {"params": [address, amount, comment, comment_to, subtractFeeFromAmount, replaceable, confTarget, estimateMode, avoidReuse]})
-
-    def createRawTransaction(self, txHeaders, payloadInfo, locktime=0, replaceable=False):
-        return self.callFunction("createrawtransaction", {"params": [txHeaders, payloadInfo, locktime, replaceable]})
-
-    def fundRawTransaction(self, hexString, options={}, isWitness=None):
-        return self.callFunction("fundrawtransaction", {"params": [hexString, options, isWitness]})
-
-    def signRawTransactionWithKey(self, hexString, privateKeys, txs=[], sigHashType="ALL"):
-        return self.callFunction("signrawtransactionwithkey", {"params": [hexString, privateKeys, txs, sigHashType]})
+    def sendToAddress(self, address, amount, comment="", comment_to="",
+                      subtractFeeFromAmount=False, replaceable=False,
+                      confTarget=1, estimateMode="UNSET", avoidReuse=False):
+        return self.callFunction("sendtoaddress",
+                                 {"params": [address, amount, comment,
+                                             comment_to, subtractFeeFromAmount,
+                                             replaceable, confTarget,
+                                             estimateMode, avoidReuse]})
 
     def signRawTransactionWithWallet(self, hexString):
-        answer = self.callFunction("signrawtransactionwithwallet", {"params": [hexString]})
+        answer = self.callFunction("signrawtransactionwithwallet",
+                                   {"params": [hexString]})
         if answer.ok:
             return answer.json()["result"]["hex"]
 
     def sendRawTransaction(self, hexString, maxFeeRate=0.1):
-        answer = self.callFunction("sendrawtransaction", {"params": [hexString, maxFeeRate]})
+        answer = self.callFunction("sendrawtransaction",
+                                   {"params": [hexString, maxFeeRate]})
         if answer.ok:
             return answer.json()["result"]
 

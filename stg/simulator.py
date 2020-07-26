@@ -8,7 +8,8 @@ SETUP_DURATION = 60
 
 class Simulator(object):
 
-    def __init__(self, syscoin, pattern, value, num_nodes, fee, assetGuid, hubAddress):
+    def __init__(self, syscoin, pattern, value, num_nodes, fee, assetGuid,
+                 hubAddress):
         self.hubAddress = hubAddress
         self.syscoin = syscoin
         self.assetGuid = assetGuid
@@ -20,7 +21,8 @@ class Simulator(object):
             self.number_of_transactions = sum(pattern.values())
             self.duration = max(self.seconds) - min(self.seconds)
             self.node_count = min(num_nodes, self.number_of_transactions)
-            self.gas_cost = self.tx_fee * (self.number_of_transactions + 2 * num_nodes)
+            self.gas_cost = self.tx_fee * (self.number_of_transactions
+                                           + 2 * num_nodes)
             self.token_amount = value * self.number_of_transactions
         except Exception:
             pass
@@ -37,10 +39,12 @@ class Simulator(object):
                 for node in range(self.node_count):
                     node_patterns[node][timestamp] = pre_number
 
-            nodes = random.sample(range(self.node_count), count % self.node_count)
+            nodes = random.sample(range(self.node_count),
+                                  count % self.node_count)
             for node in nodes:
                 try:
-                    node_patterns[node][timestamp] = node_patterns[node][timestamp] + 1
+                    node_patterns[node][timestamp] = \
+                            node_patterns[node][timestamp] + 1
                 except Exception:
                     node_patterns[node][timestamp] = 1
         return node_patterns
@@ -71,7 +75,7 @@ class Simulator(object):
         if now > self.start + self.timestamps[0]:
             del(self.timestamps[0])
             self.syscoin.send_tokens_final(self.value, self.hubAddress)
-            self.report += "\n{:}: Sent {:d}".format(self.value, now)
+            self.report += "\n{:d}: Sent {:f}".format(now, self.value)
         time.sleep(1)
 
     def get_addresses_per_node(self):

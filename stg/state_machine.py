@@ -6,7 +6,8 @@ from time import sleep
 from stg.simulator import Simulator
 from stg.logger import logger
 from stg.communication import Communicator
-from stg.messages import ADDRESS_REQUEST, ADDRESS_RESPONSE, PATTERN, SIGNAL_READY, SIGNAL_SUCCESS, SIGNAL_START, REPORT
+from stg.messages import ADDRESS_REQUEST, ADDRESS_RESPONSE, PATTERN, \
+                         SIGNAL_READY, SIGNAL_SUCCESS, SIGNAL_START, REPORT
 
 # account for python2/3 difference
 if "raw_input" not in dir():
@@ -49,7 +50,8 @@ class StateMachine(object):
     def start_communicator(self, key):
         # check connection to satellite systems
         try:
-            self.communicator = Communicator(self.args.sat, self.args.port, key)
+            self.communicator = Communicator(self.args.sat, self.args.port,
+                                             key)
         except Exception as err:
             logger.error(err)
             logger.error(("Could not connect to other sbt processes. "
