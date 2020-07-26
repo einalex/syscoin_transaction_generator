@@ -1,6 +1,7 @@
 
 import sys
 import json
+from time import sleep
 
 from stg.simulator import Simulator
 from stg.logger import logger
@@ -204,13 +205,19 @@ class Satellite(StateMachine):
         # wait for hub to ask for addresses
         addresses = self.get_addresses()
         self.get_pattern()
-        self.simulator.check_funds() # TODO: check requirements of patterns, wait for confirmations
+        self.wait_for_blocks(2)
+        # self.check_funds() # TODO: check requirements of patterns, wait for confirmations
         self.report_ready()
         self.wait_for_start()
         self.start_pattern()
         self.send_success()
         self.send_report()
         self.simulator.cleanup() # TODO: send remaining tokens and sys back to central system
+
+    def wait_for_blocks(self, count):
+        blockheight = self.syscoin.get_blockheight() + count
+        while (self.syscoin.get_blockheight() <= blockheight):
+            sleep(60)
 
     def get_pattern(self):
         message = self.communicator.receive()[0]

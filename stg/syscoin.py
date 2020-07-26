@@ -21,6 +21,10 @@ class Syscoin(object):
         # for addressTo in self.addresses:
         #     self.assetAllocationSend(assetGuid, addressFrom, addressTo, amount)
 
+    def get_blockheight(self):
+        answer = self.callFunction("getblockcount")
+        if answer.ok:
+            return answer.json()["result"]
 
     def generate_addresses(self, number_of_addresses):
         addresses = []
