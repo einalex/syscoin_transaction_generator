@@ -68,10 +68,13 @@ class Simulator(object):
         self.start = int(time.time())
         pattern_save = self.pattern
         timestamps = []
+        new_addresses = []
         for node_id in range(len(patterns)):
+            new_addresses.append(addresses[node_id])
             self.pattern = patterns[node_id]
             self.generate_timestamps()
             timestamps.append(self.timestamps)
+        addresses = new_addresses
         self.pattern = pattern_save
         to_delete = []
         while timestamps:
