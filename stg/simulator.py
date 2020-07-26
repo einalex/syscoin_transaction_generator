@@ -74,8 +74,11 @@ class Simulator(object):
         now = int(time.time())
         if now > self.start + self.timestamps[0]:
             del(self.timestamps[0])
-            self.syscoin.send_tokens_final(self.value, self.hubAddress)
-            self.report += "\n{:d}: Sent {:f}".format(now, self.value)
+            fromAddress, txid = self.syscoin.send_tokens_final(self.value,
+                                                               self.hubAddress)
+            self.report += "\n{:d}: Node {:d} sent {:f} from {:} to {:} - {:}"\
+                           .format(now, self.node_id, self.value, fromAddress,
+                                   self.hubAddress, txid)
         time.sleep(1)
 
     def get_addresses_per_node(self):

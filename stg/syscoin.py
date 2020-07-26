@@ -52,14 +52,17 @@ class Syscoin(object):
         return addresses
 
     def send_tokens(self, amount, addressTo, addressFrom):
-        hex = self.assetAllocationSend(self.guid, addressFrom,
-                                       addressTo, amount)
-        transaction = self.signRawTransactionWithWallet(hex)
-        return self.sendRawTransaction(transaction)  # returns txid
+        try:
+            hex = self.assetAllocationSend(self.guid, addressFrom,
+                                           addressTo, amount)
+            transaction = self.signRawTransactionWithWallet(hex)
+            return self.sendRawTransaction(transaction)  # returns txid
+        except Exception as err:
+            print(err)
 
     def send_tokens_final(self, amount, addressTo):
         addressFrom = self.addresses.pop()
-        return self.send_tokens(amount, addressTo, addressFrom)
+        return (addressFrom, self.send_tokens(amount, addressTo, addressFrom))
 
     def get_sys_balance(self, address):
         answer = self.addressBalance(address)
@@ -102,6 +105,8 @@ class Syscoin(object):
                                                addressTo, amount]})
         if answer.ok:
             return answer.json()["result"]["hex"]
+        else:
+            raise Exception(answer.json()["error"]["message"])
 
     def createWallet(self, walletName, passphrase="", disablePrivKeys=False,
                      blank=False, avoid_reuse=False):
