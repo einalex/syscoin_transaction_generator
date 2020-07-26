@@ -59,16 +59,18 @@ class Simulator(object):
                 # convert pattern to variable interval accuracy
                 total = self.pattern[str(index)]
                 difference = 60.0 / total
-                for step in range(0, total):
-                    self.timestamps.append(index+step*difference)
+                for step in range(total):
+                    self.timestamps.append(60.0 * index + step * difference)
             except:  # if total == 0, no need to add the timestamp
                 pass
 
 
     def start_distribution(self, patterns, addresses):
         self.start = int(time.time())
+        self.generate_timestamps()
         while self.timestamps:
             now = int(time.time())
+            print("now: {:d} - next timestamp: {:.2f} - difference: {:.2f}".format(now, self.start + self.timestamps[0], self.start + self.timestamps[0] - now))
             if now >= self.start + self.timestamps[0]:
                 for node_id in range(len(patterns)):
                     for index in range(patterns[node_id][self.timestamps[0]]):
