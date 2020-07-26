@@ -2,7 +2,7 @@ from datetime import datetime
 import random
 
 # TODO: research tx size
-TX_SIZE = 255 / 1024
+TX_SIZE = 260 / 1024
 SETUP_DURATION = 60
 
 

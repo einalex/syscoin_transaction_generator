@@ -79,8 +79,13 @@ class Hub(StateMachine):
 
         # TODO: ask satellite systems for addresses
         patterns, totals = self.calculate_fund_distribution()
-        addresses = self.get_addresses(totals, self.communicator.connection_list)
-        self.syscoin.sendToAddress(addresses, self.simulator.token_amount)
+        addresses = self.get_addresses(totals,
+                                       self.communicator.connection_list)
+        for address in addresses:
+            self.syscoin.assetAllocationSend(self.args.token, self.args.addr,
+                                             address,
+                                             self.simulator.value)
+            self.syscoin.sendToAddress(address, self.simulator.tx_fee)
         self.start_pattern(patterns, self.communicator.connection_list)
         self.wait_for_pattern_end()
         reports = self.wait_for_report()
