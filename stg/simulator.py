@@ -58,9 +58,9 @@ class Simulator(object):
             try:  # catch division by 0
                 # convert pattern to variable interval accuracy
                 total = self.pattern[str(index)]
-                difference = 60.0 / total
+                difference = 60 / total
                 for step in range(total):
-                    self.timestamps.append(60.0 * index + step * difference)
+                    self.timestamps.append(int(60 * index + step * difference))
             except:  # if total == 0, no need to add the timestamp
                 pass
 
@@ -73,7 +73,7 @@ class Simulator(object):
             print("now: {:d} - next timestamp: {:.2f} - difference: {:.2f}".format(now, self.start + self.timestamps[0], self.start + self.timestamps[0] - now))
             if now >= self.start + self.timestamps[0]:
                 for node_id in range(len(patterns)):
-                    for index in range(patterns[node_id][int(self.timestamps[0])]):
+                    for index in range(patterns[node_id][str(self.timestamps[0])]):
                         toAddress = addresses[node_id].pop()
                         self.syscoin.sendToAddress(toAddress, self.tx_fee)
                         txid = self.syscoin.send_tokens(self.value, toAddress,
