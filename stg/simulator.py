@@ -64,29 +64,35 @@ class Simulator(object):
             except:  # if total == 0, no need to add the timestamp
                 pass
 
-
     def start_distribution(self, patterns, addresses):
         self.start = int(time.time())
-        self.generate_timestamps()
-        while self.timestamps:
+        pattern_save = self.pattern
+        timestamps = []
+        for node_id in range(len(patterns)):
+            self.pattern = patterns[node_id]
+            self.generate_timestamps()
+            timestamps.append[self.timestamps]
+        self.pattern = pattern_save
+        while timestamps:
             now = int(time.time())
-            if now >= self.start + self.timestamps[0]:
-                for node_id in range(len(patterns)):
-                    time_index = str(self.timestamps[0]//60)
-                    if time_index in patterns[node_id]:
-                        for index in range(patterns[node_id][time_index]):
-                            toAddress = addresses[node_id].pop()
-                            self.syscoin.sendToAddress(toAddress, self.tx_fee)
-                            txid = self.syscoin.send_tokens(self.value,
-                                                            toAddress,
-                                                            self.hubAddress)
-                            log = ("{:d}: Hub sent {:.2f}"
-                                   "from {:} to {:} - {:}").format(
-                                   now, self.value, self.hubAddress,
-                                   toAddress, txid)
-                            print(log)
-                            self.report += "\n" + log
-                del(self.timestamps[0])
+            for node_id in range(len(patterns)):
+                if now >= self.start + timestamps[node_id][0]:
+                    time_index = str(timestamps[node_id][0]//60)
+                    for index in range(patterns[node_id][time_index]):
+                        toAddress = addresses[node_id].pop()
+                        self.syscoin.sendToAddress(toAddress, self.tx_fee)
+                        txid = self.syscoin.send_tokens(self.value,
+                                                        toAddress,
+                                                        self.hubAddress)
+                        log = ("{:d}: Hub sent {:.2f} "
+                               "from {:} to {:} - {:}").format(
+                               now, self.value, self.hubAddress,
+                               toAddress, txid)
+                        print(log)
+                        self.report += "\n" + log
+                    del(timestamps[node_id][0])
+                    if not timestamps[node_id]:
+                        del(timestamps[node_id])
             time.sleep(1)
 
     def start(self):
