@@ -73,7 +73,7 @@ class Simulator(object):
             print("now: {:d} - next timestamp: {:.2f} - difference: {:.2f}".format(now, self.start + self.timestamps[0], self.start + self.timestamps[0] - now))
             if now >= self.start + self.timestamps[0]:
                 for node_id in range(len(patterns)):
-                    for index in range(patterns[node_id][self.timestamps[0]]):
+                    for index in range(patterns[node_id][int(self.timestamps[0])]):
                         toAddress = addresses[node_id].pop()
                         self.syscoin.sendToAddress(toAddress, self.tx_fee)
                         txid = self.syscoin.send_tokens(self.value, toAddress,
