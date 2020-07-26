@@ -247,9 +247,7 @@ class Satellite(StateMachine):
     def get_addresses(self):
         message = self.communicator.receive()[0]
         if message["type"] == ADDRESS_REQUEST:
-            print(message)
             address_count = message["payload"]
-            print(address_count)
             addresses = self.syscoin.generate_addresses(address_count)
             message = self.communicator.create_message(ADDRESS_RESPONSE,
                                                        addresses)

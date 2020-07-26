@@ -9,6 +9,7 @@ from stg.messages import createMessage
 class Coder(object):
 
     def encode(self, obj):
+        print(obj)
         return bytes(json.dumps(obj), 'utf-8')
 
     def decode(self, message):

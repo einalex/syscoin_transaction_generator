@@ -24,9 +24,9 @@ class Syscoin(object):
 
     def generate_addresses(self, number_of_addresses):
         addresses = []
-        for index in range(1, number_of_addresses+1):
-            answer = self.getNewAddress(label="sim_{:d}".format(index))
-            address = json.loads(answer.text)["result"]
+        for index in range(number_of_addresses):
+            address = self.getNewAddress(label="sim_{:d}".format(index))
+            addresses.append(address)
         self.addresses += addresses
         return addresses
 
@@ -46,7 +46,9 @@ class Syscoin(object):
 
 
     def getNewAddress(self, label="", addressType="bech32"):
-        return self.callFunction("getnewaddress", {"params": [label, addressType]})
+        answer = self.callFunction("getnewaddress", {"params": [label, addressType]})
+        if answer.ok:
+            return answer.json()["result"]
 
 
     def getAddressesByLabel(self, label):
@@ -55,13 +57,13 @@ class Syscoin(object):
 
     def addressBalance(self, address):
         answer = self.callFunction("addressbalance", {"params": [address]})
-        if answer.status_code == 200:
+        if answer.ok:
             return answer.json()["result"]["amount"]
 
 
     def assetAllocationBalance(self, assetGuid, address):
         answer = self.callFunction("assetallocationbalance", {"params": [assetGuid, address]})
-        if answer.status_code == 200:
+        if answer.ok:
             return answer.json()["result"]["amount"]
 
 
