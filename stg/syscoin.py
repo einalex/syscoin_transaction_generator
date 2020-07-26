@@ -95,7 +95,8 @@ class Syscoin(object):
         address_string = "["
         for address in addresses:
             address_string += '\"' + address + '\",'
-        address_string[-1] = "]"
+        address_string = address_string[:-1]
+        address_string += "]"
         answer = self.callFunction("assetallocationbalances",
                                    {"params": [assetGuid, address_string]})
         return answer
