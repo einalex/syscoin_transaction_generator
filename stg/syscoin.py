@@ -8,13 +8,15 @@ from stg.logger import logger
 
 class Syscoin(object):
 
-    def __init__(self, hostname="localhost", port=8370, username="einalex", password="hubabuba", useSSL=False):
+    def __init__(self, asset_guid, hostname="localhost", port=18370, username="u", password="kF0DpJsphi", useSSL=False):
         http = "https://" if useSSL else "http://"
         self.url = "{:}{:}:{:}/".format(http, hostname, port)
         self.auth = requests.auth.HTTPBasicAuth(username, password)
+        self.guid = asset_guid
         self.addresses = []
-        self.loadWallet()
-        self.url = self.url + "wallet/experiment"
+        # not needed if proper wallet in correct location
+        # self.loadWallet()
+        # self.url = self.url + "wallet/experiment"
         # self.addresses = self.generate_addresses(2)
         # for addressTo in self.addresses:
         #     self.assetAllocationSend(assetGuid, addressFrom, addressTo, amount)
@@ -35,6 +37,12 @@ class Syscoin(object):
     def get_sys_balance(self, address):
         answer = self.addressBalance(address)
         print(answer)
+        return answer
+
+    def get_token_balance(self, address):
+        answer = self.assetAllocationBalance(self.guid, address)
+        print(answer)
+        return answer
 
 
     def getNewAddress(self, label="", addressType="bech32"):
@@ -47,12 +55,14 @@ class Syscoin(object):
 
     def addressBalance(self, address):
         answer = self.callFunction("addressbalance", {"params": [address]})
-        return json.loads(answer)["amount"]
+        if answer.status_code == 200:
+            return answer.json()["result"]["amount"]
 
 
     def assetAllocationBalance(self, assetGuid, address):
         answer = self.callFunction("assetallocationbalance", {"params": [assetGuid, address]})
-        return json.loads(answer)["amount"]
+        if answer.status_code == 200:
+            return answer.json()["result"]["amount"]
 
 
     def assetAllocationSend(self, assetGuid, addressFrom, addressTo, amount):
@@ -94,6 +104,9 @@ class Syscoin(object):
         message["method"] = functionName
         print(message)
         response = self.request(message)
+        print(response.json())
+        if not response.ok:
+            print(response.status_code)
         return response
 
 

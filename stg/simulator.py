@@ -6,20 +6,19 @@ SETUP_DURATION = 60
 
 class Simulator(object):
 
-    def __init__(self, syscoin, value, num_nodes, normal_frequency, normal_duration,
-                 peak_frequency, peak_duration, fee, assetGuid, hubAddress):
+    def __init__(self, syscoin, pattern, value, num_nodes, fee, assetGuid, hubAddress):
         self.hubAddress = hubAddress
         self.assetGuid = assetGuid
         self.value = value
         self.tx_fee = TX_SIZE * fee
-        self.normal_scenario = (normal_frequency, normal_duration)
-        self.peak_scenario = (peak_frequency, peak_duration)
-        self.number_of_transactions = int(normal_frequency * normal_duration) + int(peak_frequency * peak_duration)
-        self.duration = int((normal_duration + peak_duration + SETUP_DURATION) / 60) + 1
-        self.node_count = min(num_nodes, self.number_of_transactions)
-        self.gas_cost = self.tx_fee * (self.number_of_transactions + 2 * num_nodes)
-        self.token_amount = value * self.number_of_transactions
-        self.pattern = {}
+        try:
+            self.number_of_transactions = sum(pattern.values())
+            self.duration = max(pattern.keys()) - min(pattern.keys())
+            self.node_count = min(num_nodes, self.number_of_transactions)
+            self.gas_cost = self.tx_fee * (self.number_of_transactions + 2 * num_nodes)
+            self.token_amount = value * self.number_of_transactions
+        except Exception:
+            pass
         self.timestamps = []
         self.report = ""
 

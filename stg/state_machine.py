@@ -1,5 +1,6 @@
 
 import sys
+import json
 
 from stg.simulator import Simulator
 from stg.logger import logger
@@ -37,41 +38,44 @@ class StateMachine(object):
     def start(self):
         if self.args.sat:
             logger.info("Starting as the Hub node")
-            hub = Hub()
-            hub.start(self.syscoin, self.args)
+            hub = Hub(self.syscoin, self.args)
+            hub.start()
         else:
             logger.info("Starting as a satellite node")
-            satellite = Satellite()
-            satellite.start(self.syscoin, self.args)
+            satellite = Satellite(self.syscoin, self.args)
+            satellite.start()
 
-    def start_communicator(self, args, key):
+    def start_communicator(self, key):
         # check connection to satellite systems
         try:
-            self.communicator = Communicator(args.sat, args.port, key)
+            self.communicator = Communicator(self.args.sat, self.args.port, key)
         except Exception as err:
             logger.error(err)
-            logger.error("Could not connect to other sbt processes. \
-                          Make sure they are running and can be reached.")
+            logger.error(("Could not connect to other sbt processes. "
+                          "Make sure they are running and can be reached."))
             sys.exit(3)
 
-    def start_simulator(self, syscoin, args):
+    def start_simulator(self):
         try:
-            self.simulator = Simulator(syscoin, args.value, len(args.sat),
-                                       args.nf, args.nd*60, args.pf,
-                                       args.pd*60, args.fee, args.token, args.addr)
+            with open(self.args.pattern) as pattern_file:
+                self.simulator = Simulator(self.syscoin, json.load(pattern_file), float(self.args.value), len(self.args.sat),
+                                           float(self.args.fee), int(self.args.token), self.args.addr)
         except Exception as err:
-            logger.error(err)
-            sys.exit(1)
+            if isinstance(self, Satellite):
+                self.simulator = Simulator(self.syscoin, {}, 0, 0, 0, int(self.args.token), self.args.addr)
+            else:
+                logger.error(err)
+                sys.exit(1)
 
 
 
 class Hub(StateMachine):
-    def start(self, syscoin, args):
-        self.start_simulator(syscoin, args)
+    def start(self):
+        self.start_simulator()
         # calculate required sys fees and token balances
-        self.check_funds(args)
+        self.check_funds()
         key = self.get_user_consent()
-        self.communicator = Communicator(args.sat, args.port, key)
+        self.communicator = Communicator(self.args.sat, self.args.port, key)
 
         # TODO: ask satellite systems for addresses
         patterns, totals = self.calculate_fund_distribution()
@@ -104,8 +108,8 @@ class Hub(StateMachine):
             if message["type"] == REPORT:
                 reports.append(message["payload"])
             else:
-                logger.error("Received unexpected \
-                              message type: {:}".format(message["type"]))
+                logger.error(("Received unexpected"
+                              "message type: {:}").format(message["type"]))
                 sys.exit(6)
         return reports
 
@@ -113,8 +117,8 @@ class Hub(StateMachine):
         messages = self.communicator.receive()
         for message in messages:
             if not message["type"] == SIGNAL_SUCCESS:
-                logger.error("Received unexpected \
-                              message type: {:}".format(message["type"]))
+                logger.error(("Received unexpected "
+                              "message type: {:}").format(message["type"]))
                 sys.exit(6)
 
     def start_pattern(self, patterns, connections):
@@ -126,8 +130,8 @@ class Hub(StateMachine):
         messages = self.communicator.receive()
         for message in messages:
             if not message["type"] == SIGNAL_READY:
-                logger.error("Received unexpected \
-                              message type: {:}".format(message["type"]))
+                logger.error(("Received unexpected "
+                              "message type: {:}").format(message["type"]))
                 sys.exit(6)
         message = self.communicator.create_message(SIGNAL_START, None)
         self.communicator.send(message)
@@ -147,53 +151,53 @@ class Hub(StateMachine):
             if message["type"] == ADDRESS_RESPONSE:
                 addresses = addresses + message["payload"]
             else:
-                logger.error("Received unexpected \
-                              message type: {:}".format(message["type"]))
+                logger.error(("Received unexpected "
+                              "message type: {:}").format(message["type"]))
                 sys.exit(6)
         return addresses
 
-    def check_funds(self, args):
+    def check_funds(self):
         # check balance in address against fee and token projection
-        sys_have = self.syscoin.get_sys_balance(args.addr)
+        sys_have = self.syscoin.get_sys_balance(self.args.addr)
         sys_need = self.simulator.get_gas_cost()
         sys_difference = sys_need - sys_have
         if sys_difference > 0:
-            logger.error("Not enough SYS in given address. {:.2f} more SYS \
-                          required.".format(sys_difference))
+            logger.error(("Not enough SYS in given address. {:.2f} more SYS "
+                          "required.").format(sys_difference))
             sys.exit(4)
-        tokens_have = self.syscoin.get_token_balance(args.addr, args.token)
+        tokens_have = self.syscoin.get_token_balance(self.args.addr)
         tokens_need = self.simulator.get_required_tokens()
         token_difference = tokens_need - tokens_have
         if token_difference > 0:
-            logger.error("Not enough tokens in given address. {:.2f} more \
-                          tokens required.".format(token_difference))
+            logger.error(("Not enough tokens in given address. {:.2f} more "
+                          "tokens required.").format(token_difference))
             sys.exit(5)
 
     def get_user_consent(self):
         # tell the user what's about to happen, how long it will take,
         # how much it will cost and ask for start/cancel confirmation
-        reply = ask_user("\nWe will be sending {:d} transactions, \
-                         using {:d} nodes, for a cost of approximately \
-                         {:f} SYS. This will take about {:d} minutes.\
-                         \nProceed?".format(self.simulator.get_tx_count(),
-                                            self.simulator.get_node_count(),
-                                            self.simulator.get_gas_cost(),
-                                            self.simulator.get_duration()))
+        reply = ask_user(("\nWe will be sending {:d} transactions, "
+                          "using {:d} nodes, for a cost of approximately "
+                          "{:f} SYS. This will take about {:d} minutes. "
+                          "\nProceed?").format(self.simulator.get_tx_count(),
+                                               self.simulator.get_node_count(),
+                                               self.simulator.get_gas_cost(),
+                                               self.simulator.get_duration()))
         if not reply:
             print("Ok, I'll not be doing anything. Have a nice day :)")
             sys.exit(0)
         else:
             print("Alright :)")
-        return str(raw_input("\nPlease enter a passwort to secure the\
-                             communication channels: "))
+        return str(raw_input(("\nPlease enter a passwort to secure the "
+                             "communication channels: ")))
 
 
 class Satellite(StateMachine):
-    def start(self, syscoin, args):
-        self.start_simulator(syscoin, args)
-        key = str(raw_input("\nPlease enter a passwort to secure \
-                             the communication channels: "))
-        self.start_communicator(args, key)
+    def start(self):
+        self.start_simulator()
+        key = str(raw_input(("\nPlease enter a passwort to secure "
+                             "the communication channels: ")))
+        self.start_communicator(key)
         # wait for hub to ask for addresses
         addresses = self.get_addresses()
         self.get_pattern()
@@ -211,8 +215,8 @@ class Satellite(StateMachine):
             pattern = message["payload"]
             self.simulator.set_pattern(pattern)
         else:
-            logger.error("Received unexpected \
-                          message type: {:}".format(message["type"]))
+            logger.error(("Received unexpected "
+                          "message type: {:}").format(message["type"]))
             sys.exit(6)
 
     def report_ready(self):
@@ -223,8 +227,8 @@ class Satellite(StateMachine):
     def wait_for_start(self):
         message = self.communicator.receive()[0]
         if not message["type"] == SIGNAL_START:
-            logger.error("Received unexpected \
-                          message type: {:}".format(message["type"]))
+            logger.error(("Received unexpected "
+                          "message type: {:}").format(message["type"]))
             sys.exit(6)
 
     def start_pattern(self):
@@ -240,13 +244,13 @@ class Satellite(StateMachine):
                                                    self.simulator.report)
         self.communicator.send(message)
 
-    def start_communicator(self, args, key):
+    def start_communicator(self, key):
         try:
-            self.communicator = Communicator(args.sat, args.port, key)
+            self.communicator = Communicator(self.args.sat, self.args.port, key)
         except Exception as err:
             logger.error(err)
-            logger.error("Could not connect to other sbt processes. \
-                          Make sure they are running and can be reached.")
+            logger.error(("Could not connect to other sbt processes. "
+                          "Make sure they are running and can be reached."))
             sys.exit(3)
 
     def get_addresses(self):
@@ -259,6 +263,6 @@ class Satellite(StateMachine):
             self.communicator.send(message)
             return addresses
         else:
-            logger.error("Received unexpected \
-                          message type: {:}".format(message["type"]))
+            logger.error(("Received unexpected "
+                          "message type: {:}").format(message["type"]))
             sys.exit(6)
