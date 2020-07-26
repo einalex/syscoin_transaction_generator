@@ -89,13 +89,15 @@ class Hub(StateMachine):
 
     def calculate_fund_distribution(self):
         node_patterns = self.simulator.get_node_patterns()
+        print(node_patterns)
         node_transactions = []
         for node_pattern in node_patterns:
             number_of_transactions = 0
             for timestamp, count in node_pattern.items():
                 number_of_transactions += count
             node_transactions.append(number_of_transactions)
-        return (node_transactions, node_patterns)
+        print(node_transactions)
+        return (node_patterns, node_transactions)
 
     def output_report(self, reports):
         for report in reports:
@@ -247,7 +249,9 @@ class Satellite(StateMachine):
     def get_addresses(self):
         message = self.communicator.receive()[0]
         if message["type"] == ADDRESS_REQUEST:
+            print(message)
             address_count = message["payload"]
+            print(address_count)
             addresses = self.syscoin.generate_addresses(address_count)
             message = self.communicator.create_message(ADDRESS_RESPONSE,
                                                        addresses)
