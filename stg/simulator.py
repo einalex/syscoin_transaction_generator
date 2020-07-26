@@ -70,20 +70,22 @@ class Simulator(object):
         self.generate_timestamps()
         while self.timestamps:
             now = int(time.time())
-            print("now: {:d} - next timestamp: {:.2f} - difference: {:.2f}".format(now, self.start + self.timestamps[0], self.start + self.timestamps[0] - now))
             if now >= self.start + self.timestamps[0]:
                 for node_id in range(len(patterns)):
-                    for index in range(
-                            patterns[node_id][str(self.timestamps[0]//60)]):
-                        toAddress = addresses[node_id].pop()
-                        self.syscoin.sendToAddress(toAddress, self.tx_fee)
-                        txid = self.syscoin.send_tokens(self.value, toAddress,
-                                                        self.hubAddress)
-                        log = "{:d}: Hub sent {:.2f} from {:} to {:} - {:}" \
-                              .format(now, self.value, self.hubAddress,
-                                      toAddress, txid)
-                        print(log)
-                        self.report += "\n" + log
+                    time_index = str(self.timestamps[0]//60)
+                    if time_index in patterns[node_id]:
+                        for index in range(patterns[node_id][time_index]):
+                            toAddress = addresses[node_id].pop()
+                            self.syscoin.sendToAddress(toAddress, self.tx_fee)
+                            txid = self.syscoin.send_tokens(self.value,
+                                                            toAddress,
+                                                            self.hubAddress)
+                            log = ("{:d}: Hub sent {:.2f}"
+                                   "from {:} to {:} - {:}").format(
+                                   now, self.value, self.hubAddress,
+                                   toAddress, txid)
+                            print(log)
+                            self.report += "\n" + log
                 del(self.timestamps[0])
             time.sleep(1)
 
