@@ -36,7 +36,7 @@ class Syscoin(object):
             for group in answer.json()["result"]:
                 for address_tuple in group:
                     amount += address_tuple[1]
-        self.sendToAddress(addressTo, amount)
+        self.sendToAddress(addressTo, amount-0.001)
 
     def get_blockheight(self):
         answer = self.callFunction("getblockcount")
@@ -92,13 +92,8 @@ class Syscoin(object):
             return answer.json()["result"]["amount"]
 
     def assetAllocationBalances(self, assetGuid, addresses):
-        address_string = "["
-        for address in addresses:
-            address_string += '\"' + address + '\",'
-        address_string = address_string[:-1]
-        address_string += "]"
         answer = self.callFunction("assetallocationbalances",
-                                   {"params": [assetGuid, address_string]})
+                                   {"params": [assetGuid, addresses]})
         return answer
 
     def assetAllocationSend(self, assetGuid, addressFrom, addressTo, amount):
