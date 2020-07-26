@@ -84,8 +84,7 @@ class Hub(StateMachine):
 
         # TODO: ask satellite systems for addresses
         patterns, totals = self.calculate_fund_distribution()
-        addresses = self.get_addresses(totals,
-                                       self.communicator.connection_list)
+        addresses = self.get_addresses(totals)
         for address in addresses:
             self.syscoin.send_tokens(self.simulator.value, address,
                                      self.args.addr)
@@ -144,14 +143,15 @@ class Hub(StateMachine):
         message = self.communicator.create_message(SIGNAL_START, None)
         self.communicator.send(message)
 
-    def get_addresses(self, totals, connections):
-        if self.simulator.node_count != len(connections):
+    def get_addresses(self, totals):
+
+        if self.simulator.node_count != len(self.communicator.connection_list):
             logger.error("Satellite Connection count mismatch")
             sys.exit(7)
         for index in range(len(totals)):
-            message = self.communicator.create_single_message(ADDRESS_REQUEST,
-                                                              connections[index],
-                                                              totals[index])
+            message = self.communicator.create_single_message(
+                    ADDRESS_REQUEST, self.communicator.connection_list[index],
+                    totals[index], self.simulator.value)
             self.communicator.send(message)
         messages = self.communicator.receive()
         addresses = []
@@ -216,7 +216,7 @@ class Satellite(StateMachine):
         self.start_pattern()
         self.send_success()
         self.send_report()
-        self.simulator.cleanup() # TODO: send remaining tokens and sys back to central system
+        self.syscoin.cleanup(self.simulator.hubAddress)
 
     def wait_for_blocks(self, count):
         blockheight = self.syscoin.get_blockheight() + count

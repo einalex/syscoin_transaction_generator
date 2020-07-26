@@ -21,6 +21,27 @@ class Syscoin(object):
         # for addressTo in self.addresses:
         #     self.assetAllocationSend(assetGuid, addressFrom, addressTo, amount)
 
+    def cleanup(self, addressTo):
+        # send token
+        answer = self.callFunction("listaddressgroupings")
+        addresses = []
+        if answer.ok:
+            for group in answer.json()["result"]:
+                for address_tuple in group:
+                    addresses.append(address_tuple[0])
+        answer = self.assetAllocationBalances(self.guid, addresses)
+        if answer.ok:
+            for address, balance in answer.json()["result"].items():
+                self.send_tokens(balance, addressTo, address)
+        # send sys
+        answer = self.callFunction("listaddressgroupings")
+        amount = 0
+        if answer.ok:
+            for group in answer.json()["result"]:
+                for address_tuple in group:
+                    amount += address_tuple[1]
+        self.sendToAddress(addressTo, amount)
+
     def get_blockheight(self):
         answer = self.callFunction("getblockcount")
         if answer.ok:
