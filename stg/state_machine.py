@@ -80,7 +80,7 @@ class Hub(StateMachine):
     def start(self):
         self.start_simulator()
         # calculate required sys fees and token balances
-        # self.check_funds()
+        self.check_funds()
         key = self.get_user_consent()
         self.communicator = Communicator(self.args.sat, self.args.port, key)
 
