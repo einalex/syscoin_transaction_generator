@@ -10,6 +10,7 @@ class Simulator(object):
 
     def __init__(self, syscoin, pattern, value, num_nodes, fee, assetGuid, hubAddress):
         self.hubAddress = hubAddress
+        self.syscoin = syscoin
         self.assetGuid = assetGuid
         self.value = value
         self.tx_fee = 0.001
