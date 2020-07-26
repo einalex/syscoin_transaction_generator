@@ -66,12 +66,10 @@ class Syscoin(object):
 
     def get_sys_balance(self, address):
         answer = self.addressBalance(address)
-        print(answer)
         return answer
 
     def get_token_balance(self, address):
         answer = self.assetAllocationBalance(self.guid, address)
-        print(answer)
         return answer
 
     def getNewAddress(self, label="", addressType="bech32"):
@@ -142,11 +140,10 @@ class Syscoin(object):
 
     def callFunction(self, functionName, message={}):
         message["method"] = functionName
-        print(message)
         response = self.request(message)
-        print(response.json())
         if not response.ok:
-            print(response.status_code)
+            print(response)
+            print(response.json())
         return response
 
     def request(self, message):
