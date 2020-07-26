@@ -14,7 +14,7 @@ class Simulator(object):
         self.syscoin = syscoin
         self.assetGuid = assetGuid
         self.value = value
-        self.tx_fee = 0.001
+        self.tx_fee = 0.00005820
         self.pattern = pattern
         self.seconds = {int(key) for key in pattern.keys()}
         try:
@@ -76,7 +76,7 @@ class Simulator(object):
             del(self.timestamps[0])
             fromAddress, txid = self.syscoin.send_tokens_final(self.value,
                                                                self.hubAddress)
-            log = "{:d}: Node {:d} sent {:f} from {:} to {:} - {:}".format(
+            log = "{:d}: Node {:d} sent {:.2f} from {:} to {:} - {:}".format(
                     now, self.node_id, self.value,
                     fromAddress, self.hubAddress, txid)
             print(log)
