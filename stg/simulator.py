@@ -12,7 +12,7 @@ class Simulator(object):
         self.hubAddress = hubAddress
         self.assetGuid = assetGuid
         self.value = value
-        self.tx_fee = TX_SIZE * fee
+        self.tx_fee = 0.001
         self.pattern = pattern
         self.seconds = {int(key) for key in pattern.keys()}
         try:
@@ -49,10 +49,10 @@ class Simulator(object):
         minimum = keys[0]
         maximum = keys[-1]
         self.timestamps = []
-        for index in range(minimum, maximum+1):
+        for index in range(int(minimum), int(maximum)+1):
             try:  # catch division by 0
                 # convert pattern to variable interval accuracy
-                total = self.pattern[index]
+                total = self.pattern[str(index)]
                 difference = 60.0 / total
                 for step in range(0, total):
                     self.timestamps.append(index+step*difference)

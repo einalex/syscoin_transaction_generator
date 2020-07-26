@@ -59,15 +59,19 @@ class StateMachine(object):
     def start_simulator(self):
         try:
             with open(self.args.pattern) as pattern_file:
-                self.simulator = Simulator(self.syscoin, json.load(pattern_file), float(self.args.value), len(self.args.sat),
-                                           float(self.args.fee), int(self.args.token), self.args.addr)
+                self.simulator = Simulator(
+                        self.syscoin, json.load(pattern_file),
+                        float(self.args.value), len(self.args.sat),
+                        float(self.args.fee), int(self.args.token),
+                        self.args.addr)
         except Exception as err:
             if isinstance(self, Satellite):
-                self.simulator = Simulator(self.syscoin, {}, 0, 0, 0, int(self.args.token), self.args.addr)
+                self.simulator = Simulator(self.syscoin, {}, 0, 0, 0,
+                                           int(self.args.token),
+                                           self.args.addr)
             else:
                 logger.error(err)
                 sys.exit(1)
-
 
 
 class Hub(StateMachine):
@@ -216,7 +220,7 @@ class Satellite(StateMachine):
 
     def wait_for_blocks(self, count):
         blockheight = self.syscoin.get_blockheight() + count
-        while (self.syscoin.get_blockheight() <= blockheight):
+        while (self.syscoin.get_blockheight() < blockheight):
             sleep(60)
 
     def get_pattern(self):
