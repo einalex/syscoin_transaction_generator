@@ -154,7 +154,7 @@ class Hub(StateMachine):
         for index in range(len(totals)):
             message = self.communicator.create_single_message(
                     ADDRESS_REQUEST, self.communicator.connection_list[index],
-                    totals[index])
+                    (index, totals[index]))
             self.communicator.send(message)
         messages = self.communicator.receive()
         addresses = []
@@ -265,7 +265,8 @@ class Satellite(StateMachine):
     def get_addresses(self):
         message = self.communicator.receive()[0]
         if message["type"] == ADDRESS_REQUEST:
-            address_count = message["payload"]
+            node_id, address_count = message["payload"]
+            self.simulator.node_id = node_id
             addresses = self.syscoin.generate_addresses(address_count)
             message = self.communicator.create_message(ADDRESS_RESPONSE,
                                                        addresses)
