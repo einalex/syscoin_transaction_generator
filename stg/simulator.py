@@ -11,9 +11,10 @@ class Simulator(object):
         self.assetGuid = assetGuid
         self.value = value
         self.tx_fee = TX_SIZE * fee
+        self.seconds = {int(key) for key in pattern.keys()}
         try:
             self.number_of_transactions = sum(pattern.values())
-            self.duration = max(pattern.keys()) - min(pattern.keys())
+            self.duration = max(self.seconds) - min(self.seconds)
             self.node_count = min(num_nodes, self.number_of_transactions)
             self.gas_cost = self.tx_fee * (self.number_of_transactions + 2 * num_nodes)
             self.token_amount = value * self.number_of_transactions
