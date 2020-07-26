@@ -1,4 +1,6 @@
 from datetime import datetime
+import random
+
 # TODO: research tx size
 TX_SIZE = 255 / 1024
 SETUP_DURATION = 60
@@ -11,6 +13,7 @@ class Simulator(object):
         self.assetGuid = assetGuid
         self.value = value
         self.tx_fee = TX_SIZE * fee
+        self.pattern = pattern
         self.seconds = {int(key) for key in pattern.keys()}
         try:
             self.number_of_transactions = sum(pattern.values())
@@ -27,11 +30,19 @@ class Simulator(object):
         node_patterns = []
         for index in range(self.node_count):
             node_patterns.append({})
+        print(node_patterns)
         for timestamp, count in self.pattern.items():
-            for index in range(count):
-                node_patterns[index][timestamp] = min(1, int(count / self.node_count))
-            if count >= self.node_count:
-                node_patterns[self.node_count-1][timestamp] = int(count / self.node_count) + (count % self.node_count)
+            if count > self.node_count:
+                pre_number = count//self.node_count
+                for index in range(self.node_count):
+                    node_patterns[index][timestamp] = pre_number
+
+            indices = random.sample(range(self.node_count), count % self.node_count)
+            for index in indices:
+                try:
+                    node_patterns[index][timestamp] = node_patterns[index][timestamp] + 1
+                except Exception:
+                    node_patterns[index][timestamp] = 1
         return node_patterns
 
     def generate_timestamps(self):

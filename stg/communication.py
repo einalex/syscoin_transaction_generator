@@ -12,7 +12,7 @@ class Coder(object):
         return bytes(json.dumps(obj), 'utf-8')
 
     def decode(self, message):
-        return json.parse(message.decode("utf-8"))
+        return json.loads(message.decode("utf-8"))
 
 
 class Communicator(object):
@@ -48,10 +48,9 @@ class Communicator(object):
         return IP
 
     def send(self, message):
-        plaintext = self.coder.encode(message)
-        ciphertext = self.scrambler.encrypt(plaintext)
+        paket = self.coder.encode(message)
         for recipient in message["recipients"]:
-            self.connections[recipient].send(ciphertext)
+            self.connections[recipient].send(paket)
 
     def _receive(self, connection):
         paket = connection.receive()

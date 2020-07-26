@@ -88,7 +88,7 @@ class Hub(StateMachine):
         # TODO: write logfile?
 
     def calculate_fund_distribution(self):
-        node_patterns = self.simulator.get_node_pattern()
+        node_patterns = self.simulator.get_node_patterns()
         node_transactions = []
         for node_pattern in node_patterns:
             number_of_transactions = 0

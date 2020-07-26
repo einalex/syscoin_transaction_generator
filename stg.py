@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     # account for argparse inability to create a list of strings
-    args.sat = args.sat if isinstance(args.sat, list) else [args.sat]
+    args.sat = args.sat if isinstance(args.sat, list) else args.sat.split(",")
 
     try:
         syscoin = Syscoin(args.token)
