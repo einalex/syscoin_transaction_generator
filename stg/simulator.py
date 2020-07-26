@@ -14,7 +14,7 @@ class Simulator(object):
         self.syscoin = syscoin
         self.assetGuid = assetGuid
         self.value = value
-        self.tx_fee = 0.00005820
+        self.tx_fee = 0.0000764
         self.pattern = pattern
         self.seconds = {int(key) for key in pattern.keys()}
         try:
@@ -81,7 +81,6 @@ class Simulator(object):
             now = int(time.time())
             for node_id in to_delete:
                 del(timestamps[node_id])
-                del(patterns[node_id])
                 del(addresses[node_id])
             to_delete.clear()
             for node_id in range(len(timestamps)):
