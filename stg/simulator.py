@@ -73,8 +73,12 @@ class Simulator(object):
             self.generate_timestamps()
             timestamps.append(self.timestamps)
         self.pattern = pattern_save
+        to_delete = []
         while timestamps:
             now = int(time.time())
+            for node_id in to_delete:
+                del(timestamps[node_id])
+            to_delete.clear()
             for node_id in range(len(patterns)):
                 if now >= self.start + timestamps[node_id][0]:
                     time_index = str(timestamps[node_id][0]//60)
@@ -92,7 +96,7 @@ class Simulator(object):
                         self.report += "\n" + log
                     del(timestamps[node_id][0])
                     if not timestamps[node_id]:
-                        del(timestamps[node_id])
+                        to_delete.append(node_id)
             time.sleep(1)
 
     def start(self):
