@@ -71,7 +71,7 @@ class Simulator(object):
         for node_id in range(len(patterns)):
             self.pattern = patterns[node_id]
             self.generate_timestamps()
-            timestamps.append[self.timestamps]
+            timestamps.append(self.timestamps)
         self.pattern = pattern_save
         while timestamps:
             now = int(time.time())
