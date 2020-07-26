@@ -244,15 +244,6 @@ class Satellite(StateMachine):
                                                    self.simulator.report)
         self.communicator.send(message)
 
-    def start_communicator(self, key):
-        try:
-            self.communicator = Communicator(self.args.sat, self.args.port, key)
-        except Exception as err:
-            logger.error(err)
-            logger.error(("Could not connect to other sbt processes. "
-                          "Make sure they are running and can be reached."))
-            sys.exit(3)
-
     def get_addresses(self):
         message = self.communicator.receive()[0]
         if message["type"] == ADDRESS_REQUEST:

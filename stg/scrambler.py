@@ -73,9 +73,9 @@ def unpad(padded_data, block_size, style='pkcs7'):
 class Scrambler(object):
 
     def __init__(self, key):
-        IV = 16 * '\x00'           # Initialization vector: discussed later
+        IV = (16 * '\x00').encode('utf8')
         mode = AES.MODE_CBC
-        key = hashlib.sha256(key.encode('utf-8')).digest()
+        key = hashlib.sha256(key.encode('utf8')).digest()
         self.encryptor = AES.new(key, mode, IV=IV)
         self.decryptor = AES.new(key, mode, IV=IV)
 
