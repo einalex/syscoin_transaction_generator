@@ -127,9 +127,8 @@ class Hub(StateMachine):
 
     def start_pattern(self, patterns, connections):
         for index in range(len(patterns)):
-            message = self.communicator.create_single_message(PATTERN,
-                                                              connections[index],
-                                                              patterns[index])
+            message = self.communicator.create_single_message(
+                                PATTERN, connections[index], patterns[index])
             self.communicator.send(message)
         messages = self.communicator.receive()
         for message in messages:

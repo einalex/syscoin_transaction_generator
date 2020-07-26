@@ -74,7 +74,9 @@ class Syscoin(object):
 
 
     def assetAllocationSend(self, assetGuid, addressFrom, addressTo, amount):
-        return self.callFunction("assetallocationsend", {"params": [assetGuid, addressFrom, addressTo, amount]})
+        answer = self.callFunction("assetallocationsend", {"params": [assetGuid, addressFrom, addressTo, amount]})
+        if answer.ok:
+            return answer.json()["result"]["hex"]
 
 
     def createWallet(self, walletName, passphrase="", disablePrivKeys=False, blank=False, avoid_reuse=False):
@@ -101,10 +103,12 @@ class Syscoin(object):
     def signRawTransactionWithWallet(self, hexString):
         answer = self.callFunction("signrawtransactionwithwallet", {"params": [hexString]})
         if answer.ok:
-            return answer.json()["hex"]
+            return answer.json()["result"]["hex"]
 
     def sendRawTransaction(self, hexString, maxFeeRate=0.1):
-        return self.callFunction("sendrawtransaction", {"params": [hexString, maxFeeRate]})
+        answer = self.callFunction("sendrawtransaction", {"params": [hexString, maxFeeRate]})
+        if answer.ok:
+            return answer.json()["result"]
 
     def callFunction(self, functionName, message={}):
         message["method"] = functionName
