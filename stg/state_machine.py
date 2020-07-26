@@ -132,7 +132,8 @@ class Hub(StateMachine):
     def start_pattern(self, patterns, connections):
         for index in range(len(patterns)):
             message = self.communicator.create_single_message(
-                                PATTERN, connections[index], patterns[index])
+                                PATTERN, connections[index],
+                                (self.simulator.value, patterns[index]))
             self.communicator.send(message)
         messages = self.communicator.receive()
         for message in messages:
@@ -151,7 +152,7 @@ class Hub(StateMachine):
         for index in range(len(totals)):
             message = self.communicator.create_single_message(
                     ADDRESS_REQUEST, self.communicator.connection_list[index],
-                    totals[index], self.simulator.value)
+                    totals[index])
             self.communicator.send(message)
         messages = self.communicator.receive()
         addresses = []
@@ -207,7 +208,7 @@ class Satellite(StateMachine):
                              "the communication channels: ")))
         self.start_communicator(key)
         # wait for hub to ask for addresses
-        addresses = self.get_addresses()
+        self.get_addresses()
         self.get_pattern()
         self.wait_for_blocks(2)
         # self.check_funds() # TODO: check requirements of patterns, wait for confirmations
@@ -226,7 +227,8 @@ class Satellite(StateMachine):
     def get_pattern(self):
         message = self.communicator.receive()[0]
         if message["type"] == PATTERN:
-            pattern = message["payload"]
+            value, pattern = message["payload"]
+            self.simulator.value = value
             self.simulator.set_pattern(pattern)
         else:
             logger.error(("Received unexpected "
