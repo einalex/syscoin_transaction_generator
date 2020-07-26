@@ -30,19 +30,18 @@ class Simulator(object):
         node_patterns = []
         for index in range(self.node_count):
             node_patterns.append({})
-        print(node_patterns)
         for timestamp, count in self.pattern.items():
-            if count > self.node_count:
+            if count >= self.node_count:
                 pre_number = count//self.node_count
-                for index in range(self.node_count):
-                    node_patterns[index][timestamp] = pre_number
+                for node in range(self.node_count):
+                    node_patterns[node][timestamp] = pre_number
 
-            indices = random.sample(range(self.node_count), count % self.node_count)
-            for index in indices:
+            nodes = random.sample(range(self.node_count), count % self.node_count)
+            for node in nodes:
                 try:
-                    node_patterns[index][timestamp] = node_patterns[index][timestamp] + 1
+                    node_patterns[node][timestamp] = node_patterns[node][timestamp] + 1
                 except Exception:
-                    node_patterns[index][timestamp] = 1
+                    node_patterns[node][timestamp] = 1
         return node_patterns
 
     def generate_timestamps(self):
