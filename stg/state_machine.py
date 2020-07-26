@@ -82,9 +82,8 @@ class Hub(StateMachine):
         addresses = self.get_addresses(totals,
                                        self.communicator.connection_list)
         for address in addresses:
-            self.syscoin.assetAllocationSend(self.args.token, self.args.addr,
-                                             address,
-                                             self.simulator.value)
+            self.syscoin.send_tokens(self.simulator.value, address,
+                                     self.args.addr)
             self.syscoin.sendToAddress(address, self.simulator.tx_fee)
         self.start_pattern(patterns, self.communicator.connection_list)
         self.wait_for_pattern_end()

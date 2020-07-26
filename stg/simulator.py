@@ -75,7 +75,7 @@ class Simulator(object):
     def get_addresses_per_node(self):
         return self.number_of_transactions / self.node_count
 
-    def set_patter(self, pattern):
+    def set_pattern(self, pattern):
         self.pattern = pattern
 
     def get_gas_cost(self):

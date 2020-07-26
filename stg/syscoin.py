@@ -30,9 +30,15 @@ class Syscoin(object):
         self.addresses += addresses
         return addresses
 
-    def send_tokens(self, assetGuid, amount, addressTo):
+    def send_tokens(self, amount, addressTo, addressFrom):
+        hex = self.assetAllocationSend(self.guid, addressFrom,
+                                       addressTo, amount)
+        transaction = self.signRawTransactionWithWallet(hex)
+        return self.sendRawTransaction(transaction) # returns txid
+
+    def send_tokens_final(self, amount, addressTo):
         addressFrom = self.addresses.pop()
-        self.assetAllocationSend(assetGuid, addressFrom, addressTo, amount)
+        return self.send_tokens(amount, addressTo, addressFrom)
 
     def get_sys_balance(self, address):
         answer = self.addressBalance(address)
@@ -80,27 +86,25 @@ class Syscoin(object):
         # if response.status_code == 500:
         #     return self.createWallet("experiment", blank=False)
 
-
     def sendToAddress(self, address, amount, comment="", comment_to="", subtractFeeFromAmount=False, replaceable=False, confTarget=1, estimateMode="UNSET", avoidReuse="True"):
         return self.callFunction("sendtoaddress", {"params": [address, amount, comment, comment_to, subtractFeeFromAmount, replaceable, confTarget, estimateMode, avoidReuse]})
-
-
 
     def createRawTransaction(self, txHeaders, payloadInfo, locktime=0, replaceable=False):
         return self.callFunction("createrawtransaction", {"params": [txHeaders, payloadInfo, locktime, replaceable]})
 
-
     def fundRawTransaction(self, hexString, options={}, isWitness=None):
         return self.callFunction("fundrawtransaction", {"params": [hexString, options, isWitness]})
-
 
     def signRawTransactionWithKey(self, hexString, privateKeys, txs=[], sigHashType="ALL"):
         return self.callFunction("signrawtransactionwithkey", {"params": [hexString, privateKeys, txs, sigHashType]})
 
+    def signRawTransactionWithWallet(self, hexString):
+        answer = self.callFunction("signrawtransactionwithwallet", {"params": [hexString]})
+        if answer.ok:
+            return answer.json()["hex"]
 
     def sendRawTransaction(self, hexString, maxFeeRate=0.1):
         return self.callFunction("sendrawtransaction", {"params": [hexString, maxFeeRate]})
-
 
     def callFunction(self, functionName, message={}):
         message["method"] = functionName
@@ -110,7 +114,6 @@ class Syscoin(object):
         if not response.ok:
             print(response.status_code)
         return response
-
 
     def request(self, message):
         return requests.post(self.url, auth=self.auth, json=message)
