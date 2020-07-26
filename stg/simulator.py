@@ -78,8 +78,10 @@ class Simulator(object):
             now = int(time.time())
             for node_id in to_delete:
                 del(timestamps[node_id])
+                del(patterns[node_id])
+                del(addresses[node_id])
             to_delete.clear()
-            for node_id in range(len(patterns)):
+            for node_id in range(len(timestamps)):
                 if now >= self.start + timestamps[node_id][0]:
                     time_index = str(timestamps[node_id][0]//60)
                     for index in range(patterns[node_id][time_index]):

@@ -147,7 +147,7 @@ class Syscoin(object):
         message["method"] = functionName
         response = self.request(message)
         if not response.ok:
-            print(response)
+            print(message)
             print(response.json())
         return response
 
