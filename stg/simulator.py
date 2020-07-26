@@ -65,28 +65,31 @@ class Simulator(object):
                 pass
 
     def start_distribution(self, patterns, addresses):
-        self.start = int(time.time())
         pattern_save = self.pattern
-        timestamps = []
-        new_addresses = []
+        timestamps = {}
+        tmp_patterns = {}
         for node_id in range(len(patterns)):
-            new_addresses.append(addresses[node_id])
             self.pattern = patterns[node_id]
             self.generate_timestamps()
-            timestamps.append(self.timestamps)
-        addresses = new_addresses
+            timestamps[node_id] = self.timestamps
+            tmp_patterns[node_id] = patterns[node_id]
         self.pattern = pattern_save
         to_delete = []
+        self.start = int(time.time())
         while timestamps:
             now = int(time.time())
             for node_id in to_delete:
                 del(timestamps[node_id])
                 del(addresses[node_id])
+                del(tmp_patterns[node_id])
             to_delete.clear()
-            for node_id in range(len(timestamps)):
+            for node_id in timestamps.keys():
                 if now >= self.start + timestamps[node_id][0]:
+                    print(timestamps)
+                    print(addresses)
+                    print(tmp_patterns)
                     time_index = str(timestamps[node_id][0]//60)
-                    for index in range(patterns[node_id][time_index]):
+                    for index in range(tmp_patterns[node_id][time_index]):
                         toAddress = addresses[node_id].pop()
                         self.syscoin.sendFrom(self.hubAddress, toAddress,
                                               self.tx_fee)
