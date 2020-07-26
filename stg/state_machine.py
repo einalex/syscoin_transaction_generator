@@ -87,10 +87,11 @@ class Hub(StateMachine):
         # TODO: ask satellite systems for addresses
         patterns, totals = self.calculate_fund_distribution()
         addresses = self.get_addresses(totals)
-        for address in addresses:
-            self.syscoin.send_tokens(self.simulator.value, address,
-                                     self.args.addr)
-            self.syscoin.sendToAddress(address, self.simulator.tx_fee)
+        self.simulator.start_distribution(patterns, addresses)
+        # for address in addresses:
+        #     self.syscoin.send_tokens(self.simulator.value, address,
+        #                              self.args.addr)
+        #     self.syscoin.sendToAddress(address, self.simulator.tx_fee)
         self.start_pattern(patterns, self.communicator.connection_list)
         self.wait_for_pattern_end()
         reports = self.wait_for_report()
@@ -108,6 +109,7 @@ class Hub(StateMachine):
         return (node_patterns, node_transactions)
 
     def output_report(self, reports):
+        logger.info(self.simulator.report)
         for report in reports:
             logger.info(report)
 
@@ -157,10 +159,11 @@ class Hub(StateMachine):
                     (index, totals[index]))
             self.communicator.send(message)
         messages = self.communicator.receive()
-        addresses = []
+        addresses = {}
         for message in messages:
             if message["type"] == ADDRESS_RESPONSE:
-                addresses = addresses + message["payload"]
+                node_id, addresses = message["payload"]
+                addresses[node_id] = addresses
             else:
                 logger.error(("Received unexpected "
                               "message type: {:}").format(message["type"]))
@@ -269,7 +272,7 @@ class Satellite(StateMachine):
             self.simulator.node_id = node_id
             addresses = self.syscoin.generate_addresses(address_count)
             message = self.communicator.create_message(ADDRESS_RESPONSE,
-                                                       addresses)
+                                                       (node_id, addresses))
             self.communicator.send(message)
             return addresses
         else:

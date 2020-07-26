@@ -64,6 +64,26 @@ class Simulator(object):
             except:  # if total == 0, no need to add the timestamp
                 pass
 
+
+    def start_distribution(self, patterns, addresses):
+        self.start = int(time.time())
+        while self.timestamps:
+            now = int(time.time())
+            if now >= self.start + self.timestamps[0]:
+                for node_id in range(len(patterns)):
+                    for index in range(patterns[node_id][self.timestamps[0]]):
+                        toAddress = addresses[node_id].pop()
+                        self.syscoin.sendToAddress(toAddress, self.tx_fee)
+                        txid = self.syscoin.send_tokens(self.value, toAddress,
+                                                        self.hubAddress)
+                        log = "{:d}: Hub sent {:.2f} from {:} to {:} - {:}" \
+                              .format(now, self.value, self.hubAddress,
+                                      toAddress, txid)
+                        print(log)
+                        self.report += "\n" + log
+                del(self.timestamps[0])
+            time.sleep(1)
+
     def start(self):
         self.generate_timestamps()
         self.start = int(time.time())
@@ -72,7 +92,7 @@ class Simulator(object):
 
     def loop(self):
         now = int(time.time())
-        if now > self.start + self.timestamps[0]:
+        if now >= self.start + self.timestamps[0]:
             del(self.timestamps[0])
             fromAddress, txid = self.syscoin.send_tokens_final(self.value,
                                                                self.hubAddress)
