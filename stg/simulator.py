@@ -70,8 +70,9 @@ class Simulator(object):
         now = int(time.time())
         if now > self.start + self.timestamps[0]:
             del(self.timestamps[0])
-            self.syscoin.send_tokens(self.assetGuid, self.value, self.hubAddress)
+            self.syscoin.send_tokens_final(self.value, self.hubAddress)
             self.report += "\n{:}: Sent {:d}".format(self.value, now)
+        time.sleep(1)
 
     def get_addresses_per_node(self):
         return self.number_of_transactions / self.node_count
