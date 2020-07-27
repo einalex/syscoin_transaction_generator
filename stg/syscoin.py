@@ -60,6 +60,14 @@ class Syscoin(object):
         except Exception as err:
             print(err)
 
+    def send_sys(self, amount, addressTo, addressFrom):
+        try:
+            hex = self.sendFrom(addressFrom, addressTo, amount)
+            transaction = self.signRawTransactionWithWallet(hex)
+            return self.sendRawTransaction(transaction)  # returns txid
+        except Exception as err:
+            print(err)
+
     def send_tokens_final(self, amount, addressTo):
         addressFrom = self.addresses.pop()
         return (addressFrom, self.send_tokens(amount, addressTo, addressFrom))
@@ -123,7 +131,8 @@ class Syscoin(object):
         #     return self.createWallet("experiment", blank=False)
 
     def sendFrom(self, fromAddress, toAddress, amount):
-        return self.callFunction("sendfrom", {"params": [fromAddress, toAddress, amount]})
+        return self.callFunction("sendfrom", {"params": [fromAddress,
+                                                         toAddress, amount]})
 
     def sendToAddress(self, address, amount, comment="", comment_to="",
                       subtractFeeFromAmount=False, replaceable=False,

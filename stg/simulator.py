@@ -14,7 +14,7 @@ class Simulator(object):
         self.syscoin = syscoin
         self.assetGuid = assetGuid
         self.value = value
-        self.tx_fee = 0.0000764
+        self.tx_fee = 0.00001820
         self.pattern = pattern
         self.seconds = {int(key) for key in pattern.keys()}
         try:
@@ -86,8 +86,8 @@ class Simulator(object):
             for node_id in timestamps.keys():
                 if now >= self.start + timestamps[node_id][0]:
                     toAddress = addresses[node_id].pop()
-                    self.syscoin.sendFrom(self.hubAddress, toAddress,
-                                          self.tx_fee)
+                    self.syscoin.send_sys(self.tx_fee, toAddress,
+                                "tsys1q2nsv7qna5aqtqfjlr044gpwknazkjkswsv3fy5")
                     txid = self.syscoin.send_tokens(self.value,
                                                     toAddress,
                                                     self.hubAddress)
