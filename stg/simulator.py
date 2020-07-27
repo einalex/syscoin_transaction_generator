@@ -85,23 +85,18 @@ class Simulator(object):
             to_delete.clear()
             for node_id in timestamps.keys():
                 if now >= self.start + timestamps[node_id][0]:
-                    print(timestamps)
-                    print(addresses)
-                    print(tmp_patterns)
-                    time_index = str(timestamps[node_id][0]//60)
-                    for index in range(tmp_patterns[node_id][time_index]):
-                        toAddress = addresses[node_id].pop()
-                        self.syscoin.sendFrom(self.hubAddress, toAddress,
-                                              self.tx_fee)
-                        txid = self.syscoin.send_tokens(self.value,
-                                                        toAddress,
-                                                        self.hubAddress)
-                        log = ("{:d}: Hub sent {:.2f} "
-                               "from {:} to {:} - {:}").format(
-                               now, self.value, self.hubAddress,
-                               toAddress, txid)
-                        print(log)
-                        self.report += "\n" + log
+                    toAddress = addresses[node_id].pop()
+                    self.syscoin.sendFrom(self.hubAddress, toAddress,
+                                          self.tx_fee)
+                    txid = self.syscoin.send_tokens(self.value,
+                                                    toAddress,
+                                                    self.hubAddress)
+                    log = ("{:d}: Hub sent {:.2f} "
+                           "from {:} to {:} - {:}").format(
+                           now, self.value, self.hubAddress,
+                           toAddress, txid)
+                    print(log)
+                    self.report += "\n" + log
                     del(timestamps[node_id][0])
                     if not timestamps[node_id]:
                         to_delete.append(node_id)
