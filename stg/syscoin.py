@@ -131,8 +131,12 @@ class Syscoin(object):
         #     return self.createWallet("experiment", blank=False)
 
     def sendFrom(self, fromAddress, toAddress, amount):
-        return self.callFunction("sendfrom", {"params": [fromAddress,
-                                                         toAddress, amount]})
+        answer = self.callFunction("sendfrom", {"params": [fromAddress,
+                                                           toAddress, amount]})
+        if answer.ok:
+            return answer.json()["result"]["hex"]
+        else:
+            raise Exception(answer.json()["error"]["message"])
 
     def sendToAddress(self, address, amount, comment="", comment_to="",
                       subtractFeeFromAmount=False, replaceable=False,
