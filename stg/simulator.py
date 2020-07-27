@@ -14,7 +14,7 @@ class Simulator(object):
         self.syscoin = syscoin
         self.assetGuid = assetGuid
         self.value = value
-        self.tx_fee = 0.00001820
+        self.tx_fee = 0.00005820
         self.pattern = pattern
         self.seconds = {int(key) for key in pattern.keys()}
         try:
