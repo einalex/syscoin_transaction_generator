@@ -18,18 +18,18 @@ class Simulator(object):
         self.sys_tx_fee = 0.00005820
         self.token_tx_fee = 0.00005820
         self.num_nodes = num_nodes
+        self.minutes = {int(key) for key in pattern.keys()}
         try:
             self.set_pattern(pattern)
         except Exception:
             pass
-        self.seconds = {int(key) for key in pattern.keys()}
         self.blocks = []
         self.report = ""
 
     def set_pattern(self, pattern):
         self.num_addresses = ceil(max(list(pattern.values()))/12)
         self.number_of_transactions = sum(pattern.values())
-        self.duration = max(self.seconds) - min(self.seconds)
+        self.duration = max(self.minutes) - min(self.minutes)
         self.node_count = min(self.num_nodes, self.number_of_transactions)
         self.gas_cost = self.sys_tx_fee * (2 * self.number_of_transactions) \
             + self.token_tx_fee * (2 * self.number_of_transactions)

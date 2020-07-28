@@ -202,7 +202,7 @@ class Hub(StateMachine):
         # how much it will cost and ask for start/cancel confirmation
         reply = ask_user(("\nWe will be sending {:d} transactions, "
                           "using {:d} nodes, for a cost of approximately "
-                          "{:f} SYS. This will take about {:d} minutes. "
+                          "{:f} SYS. This will take about {:d} blocks. "
                           "\nProceed?").format(self.simulator.get_tx_count(),
                                                self.simulator.get_node_count(),
                                                self.simulator.get_gas_cost(),
