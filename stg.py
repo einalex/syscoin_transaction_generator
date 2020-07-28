@@ -17,7 +17,7 @@ if __name__ == "__main__":
         help='Funding address')
     parser.add_argument('--pattern', default="pattern.json",
                         help='path to JSON file containing traffic pattern')
-    parser.add_argument('--token', default=1431845689, help='Token ID')
+    parser.add_argument('--token', default="1431845689", help='Token ID')
     parser.add_argument('--value', default=42,
                         help='Average transaction value')
     parser.add_argument('--sat', default=[],

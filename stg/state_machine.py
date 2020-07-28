@@ -92,9 +92,9 @@ class Hub(StateMachine):
         patterns, totals = self.calculate_fund_distribution()
 
         logger.info("Collecting target addresses")
-        self.get_addresses(totals)
+        addresses = self.get_addresses(totals)
         logger.info("Starting fund distribution")
-        self.simulator.hub_start(patterns)
+        self.simulator.hub_start(patterns, addresses)
         # for address in addresses:
         #     self.syscoin.send_tokens(self.simulator.value, address,
         #                              self.args.addr)
@@ -159,7 +159,6 @@ class Hub(StateMachine):
         self.communicator.send(message)
 
     def get_addresses(self, totals):
-
         if self.simulator.node_count != len(self.communicator.connection_list):
             logger.error("Satellite Connection count mismatch")
             sys.exit(7)

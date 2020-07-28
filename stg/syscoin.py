@@ -78,8 +78,10 @@ class Syscoin(object):
 
     def send_many_tokens(self, addressFrom, toAddresses, amounts):
         try:
+            recipients = [{"address": address, "amount": amount}
+                          for address, amount in zip(toAddresses, amounts)]
             hex = self.assetAllocationSendMany(self.guid, addressFrom,
-                                               dict(zip(toAddresses, amounts)))
+                                               recipients, "")
             transaction = self.signRawTransactionWithWallet(hex)
             return self.sendRawTransaction(transaction)  # returns txid
         except Exception as err:

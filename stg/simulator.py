@@ -27,6 +27,7 @@ class Simulator(object):
         self.report = ""
 
     def set_pattern(self, pattern):
+        self.pattern = pattern
         self.num_addresses = ceil(max(list(pattern.values()))/12)
         self.number_of_transactions = sum(pattern.values())
         self.duration = max(self.minutes) - min(self.minutes)
@@ -54,6 +55,7 @@ class Simulator(object):
         for index in range(self.node_count):
             node_patterns.append({})
         for timestamp, count in self.pattern.items():
+            timestamp = int(timestamp)
             if count >= self.node_count:
                 pre_number = count//self.node_count
                 for node in range(self.node_count):
