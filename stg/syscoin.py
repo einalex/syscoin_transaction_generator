@@ -51,7 +51,7 @@ class Syscoin(object):
         self.addresses += addresses
         return addresses
 
-    def send_tokens(self, amount, addressTo, addressFrom):
+    def send_tokens(self, amount, addressFrom, addressTo):
         try:
             hex = self.assetAllocationSend(self.guid, addressFrom,
                                            addressTo, amount)
@@ -60,9 +60,26 @@ class Syscoin(object):
         except Exception as err:
             print(err)
 
-    def send_sys(self, amount, addressTo, addressFrom):
+    def send_sys(self, amount, addressFrom, addressTo):
         try:
             hex = self.sendFrom(addressFrom, addressTo, amount)
+            transaction = self.signRawTransactionWithWallet(hex)
+            return self.sendRawTransaction(transaction)  # returns txid
+        except Exception as err:
+            print(err)
+
+    def send_many_sys(self, fromAddress, toAddresses, amounts):
+        try:
+            hex = self.sendMany(dict(zip(toAddresses, amounts)))
+            transaction = self.signRawTransactionWithWallet(hex)
+            return self.sendRawTransaction(transaction)  # returns txid
+        except Exception as err:
+            print(err)
+
+    def send_many_tokens(self, addressFrom, toAddresses, amounts):
+        try:
+            hex = self.assetAllocationSendMany(self.guid, addressFrom,
+                                               dict(zip(toAddresses, amounts)))
             transaction = self.signRawTransactionWithWallet(hex)
             return self.sendRawTransaction(transaction)  # returns txid
         except Exception as err:
@@ -79,6 +96,13 @@ class Syscoin(object):
     def get_token_balance(self, address):
         answer = self.assetAllocationBalance(self.guid, address)
         return answer
+
+    def sendMany(self, targets):
+        answer = self.callFunction("sendmany", {"params": ["", targets]})
+        if answer.ok:
+            return answer.json()["result"]["hex"]
+        else:
+            raise Exception(answer.json()["error"]["message"])
 
     def getBalance(self):
         answer = self.callFunction("getbalance")
@@ -114,6 +138,15 @@ class Syscoin(object):
         answer = self.callFunction("assetallocationsend",
                                    {"params": [assetGuid, addressFrom,
                                                addressTo, amount]})
+        if answer.ok:
+            return answer.json()["result"]["hex"]
+        else:
+            raise Exception(answer.json()["error"]["message"])
+
+    def assetAllocationSendMany(self, assetGuid, addressFrom, targets):
+        answer = self.callFunction("assetallocationsendmany",
+                                   {"params": [assetGuid, addressFrom,
+                                               targets]})
         if answer.ok:
             return answer.json()["result"]["hex"]
         else:

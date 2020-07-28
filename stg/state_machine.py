@@ -84,13 +84,17 @@ class Hub(StateMachine):
         key = self.get_user_consent()
         self.communicator = Communicator(self.args.sat, self.args.port, key)
 
+        logger.info("Creating source addresses and distributing funds")
+        self.simulator.distribute_funds()
+
         # TODO: ask satellite systems for addresses
-        logger.info("Calculating funds distribution")
+        logger.info("Calculating node patterns")
         patterns, totals = self.calculate_fund_distribution()
+
         logger.info("Collecting target addresses")
-        addresses = self.get_addresses(totals)
+        self.get_addresses(totals)
         logger.info("Starting fund distribution")
-        self.simulator.start_distribution(patterns, addresses)
+        self.simulator.hub_start(patterns)
         # for address in addresses:
         #     self.syscoin.send_tokens(self.simulator.value, address,
         #                              self.args.addr)
@@ -265,7 +269,7 @@ class Satellite(StateMachine):
             sys.exit(6)
 
     def start_pattern(self):
-        self.simulator.start()
+        self.simulator.minion_start()
 
     def send_success(self):
         message = self.communicator.create_message(SIGNAL_SUCCESS,
