@@ -91,6 +91,7 @@ class Simulator(object):
         self.syscoin.send_many_sys(self.hub_address, first_batch, sys_amounts)
         self.wait_for_block()
         logger.info("send second wave")
+        second_batch = addresses[-first_wave_size*second_wave_size:]
         offset = 0
         sys_amount = \
             round(self.multi_sys_fee(third_wave_size)
@@ -101,21 +102,21 @@ class Simulator(object):
         token_amount = third_wave_size * self.value
         token_amounts = [token_amount] * second_wave_size
         for fromAddress in first_batch:
-            toAddresses = addresses[-offset-second_wave_size:-offset]
+            toAddresses = second_batch[offset:offset+second_wave_size]
             # print("tokens from {:}, to {:}, amount {:f}".format(fromAddress, toAddresses, token_amount))
             self.syscoin.send_many_tokens(fromAddress, toAddresses,
                                           token_amounts)
             offset += second_wave_size
         self.wait_for_block()
-        offset = first_wave_size
+        offset = 0
         for fromAddress in first_batch:
-            toAddresses = addresses[-offset-second_wave_size:-offset]
+            toAddresses = second_batch[offset:offset+second_wave_size]
             # print("sys from {:}, to {:}, amount {:f}".format(fromAddress, toAddresses, sys_amount))
             self.syscoin.send_many_sys(fromAddress, toAddresses,
                                        sys_amounts)
             offset += second_wave_size
         self.wait_for_block()
-        second_batch = addresses[-first_wave_size*second_wave_size:]
+
         # send third wave
         logger.info("send third wave")
         offset = 0
