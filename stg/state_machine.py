@@ -233,18 +233,17 @@ class Satellite(StateMachine):
         logger.info("Waiting for transaction pattern")
         self.get_pattern()
         logger.info("Got pattern, waiting for blockchain")
-        self.wait_for_block(self.start_block)
         # self.check_funds() # TODO: check requirements of patterns, wait for confirmations
         logger.info("Ready to send")
         self.report_ready()
         self.wait_for_start()
-        logger.info("Starting pattern")
         self.wait_for_block(self.start_block)
+        logger.info("Starting pattern")
         self.start_pattern()
         logger.info("Pattern finished")
         self.send_success()
         self.send_report()
-        self.syscoin.cleanup(self.simulator.hubAddress)
+        self.syscoin.cleanup(self.simulator.hub_address)
 
     def wait_for_blocks(self, count):
         blockheight = self.syscoin.get_blockheight() + count
@@ -275,10 +274,11 @@ class Satellite(StateMachine):
     def wait_for_start(self):
         message = self.communicator.receive()[0]
         if not message["type"] == SIGNAL_START:
-            self.start_block = message["payload"]
             logger.error(("Received unexpected "
                           "message type: {:}").format(message["type"]))
             sys.exit(6)
+        else:
+            self.start_block = message["payload"]
 
     def start_pattern(self):
         self.simulator.minion_start(self.args.addrfile)

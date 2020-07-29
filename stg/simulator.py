@@ -91,7 +91,7 @@ class Simulator(object):
         self.syscoin.send_many_sys(self.hub_address, first_batch, sys_amounts)
         self.wait_for_block()
         logger.info("send second wave")
-        offset = first_wave_size
+        offset = 0
         sys_amount = \
             round(self.multi_sys_fee(third_wave_size)
                   + self.multi_token_fee(third_wave_size)
@@ -101,7 +101,7 @@ class Simulator(object):
         token_amount = third_wave_size * self.value
         token_amounts = [token_amount] * second_wave_size
         for fromAddress in first_batch:
-            toAddresses = addresses[offset:offset+second_wave_size]
+            toAddresses = addresses[-offset-second_wave_size:-offset]
             # print("tokens from {:}, to {:}, amount {:f}".format(fromAddress, toAddresses, token_amount))
             self.syscoin.send_many_tokens(fromAddress, toAddresses,
                                           token_amounts)
@@ -109,18 +109,16 @@ class Simulator(object):
         self.wait_for_block()
         offset = first_wave_size
         for fromAddress in first_batch:
-            toAddresses = addresses[offset:offset+second_wave_size]
+            toAddresses = addresses[-offset-second_wave_size:-offset]
             # print("sys from {:}, to {:}, amount {:f}".format(fromAddress, toAddresses, sys_amount))
             self.syscoin.send_many_sys(fromAddress, toAddresses,
                                        sys_amounts)
             offset += second_wave_size
         self.wait_for_block()
-        second_batch = addresses[first_wave_size:(first_wave_size
-                                                  + first_wave_size
-                                                  * second_wave_size)]
+        second_batch = addresses[-first_wave_size*second_wave_size:]
         # send third wave
         logger.info("send third wave")
-        offset = first_wave_size + first_wave_size * second_wave_size
+        offset = 0
         sys_amount = self.token_fee
         sys_amounts = [sys_amount] * third_wave_size
         token_amount = self.value
@@ -132,7 +130,7 @@ class Simulator(object):
                                           token_amounts)
             offset += third_wave_size
         self.wait_for_block()
-        offset = first_wave_size + first_wave_size * second_wave_size
+        offset = 0
         for fromAddress in second_batch:
             toAddresses = addresses[offset:offset+third_wave_size]
             # print("sys from {:}, to {:}, amount {:f}".format(fromAddress, toAddresses, sys_amount))
@@ -221,7 +219,7 @@ class Simulator(object):
                     del(self.blocks[node_id])
 
     def minion_start(self, filename):
-        transaction_count = len(self.pattern[1])
+        transaction_count = self.pattern["1"]
         offset = self.node_id * transaction_count
         with open(filename) as f:
             addresses = json.load(f)
