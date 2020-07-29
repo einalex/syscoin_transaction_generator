@@ -61,25 +61,25 @@ class Simulator(object):
         logger.info("Reached block {:d}.".format(second))
 
     def multi_token_fee(self, recipients):
-        return (5300 + 600 * recipients) / 10**8
+        return round((5300 + 600 * recipients) / 10**8, 8)
 
     def multi_sys_fee(self, recipients):
-        return (1100 + 310 * recipients) / 10**8
+        return round((1100 + 310 * recipients) / 10**8, 8)
 
     def distribute_funds_single(self, filename="100k-address-set3.json"):
         # load addresses
         with open(filename) as f:
             addresses = json.load(f)
         first_wave_size = 4
-        second_wave_size = 250
-        third_wave_size = 250
+        second_wave_size = 25
+        third_wave_size = 25
         first_batch = addresses[:first_wave_size]
         sys_amount = \
-            self.multi_sys_fee(second_wave_size) \
-            + self.multi_token_fee(second_wave_size) \
-            + second_wave_size * self.multi_sys_fee(third_wave_size) \
-            + second_wave_size * self.multi_token_fee(third_wave_size) \
-            + second_wave_size * third_wave_size * self.token_fee
+            round(self.multi_sys_fee(second_wave_size)
+                  + self.multi_token_fee(second_wave_size)
+                  + second_wave_size * self.multi_sys_fee(third_wave_size)
+                  + second_wave_size * self.multi_token_fee(third_wave_size)
+                  + second_wave_size * third_wave_size * self.token_fee, 8)
         first_batch = addresses[:first_wave_size]
         sys_amounts = [sys_amount] * first_wave_size
         token_amount = second_wave_size * third_wave_size * self.value
@@ -92,9 +92,9 @@ class Simulator(object):
         # send second wave
         offset = first_wave_size
         sys_amount = \
-            self.multi_sys_fee(third_wave_size) \
-            + self.multi_token_fee(third_wave_size) \
-            + third_wave_size * self.token_fee
+            round(self.multi_sys_fee(third_wave_size)
+                  + self.multi_token_fee(third_wave_size)
+                  + third_wave_size * self.token_fee, 8)
 
         sys_amounts = [sys_amount] * second_wave_size
         token_amount = third_wave_size * self.value
