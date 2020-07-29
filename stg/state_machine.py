@@ -81,7 +81,7 @@ class Hub(StateMachine):
         self.start_simulator()
         # calculate required sys fees and token balances
         self.check_funds()
-        if self.args.addrfile:
+        if self.args.prefund:
             self.simulator.distribute_funds_single(self.args.addrfile)
             sys.exit(0)
         else:

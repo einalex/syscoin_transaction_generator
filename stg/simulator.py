@@ -1,7 +1,6 @@
 import time
 import json
 import random
-import asyncio
 from math import ceil
 from stg.logger import logger
 # TODO: research tx size
@@ -76,11 +75,11 @@ class Simulator(object):
         token_amount = (first_wave_size + 1) * self.value
         token_amounts = [token_amount] * first_wave_size
         print("tokens from {:}, to {:}, amount {:f}".format(self.hub_address, first_batch, token_amount))
-        await self.syscoin.send_many_tokens(self.hub_address, first_batch,
+        self.syscoin.send_many_tokens(self.hub_address, first_batch,
                                       token_amounts)
         self.wait_for_block()
         print("sys from {:}, to {:}, amount {:f}".format(self.hub_address, first_batch, sys_amount))
-        await self.syscoin.send_many_sys(self.hub_address, first_batch,
+        self.syscoin.send_many_sys(self.hub_address, first_batch,
                                    sys_amounts)
         self.wait_for_block()
         # send second wave
@@ -89,23 +88,19 @@ class Simulator(object):
         sys_amounts = [sys_amount] * second_wave_size
         token_amount = self.value
         token_amounts = [token_amount] * second_wave_size
-        calls = []
         for fromAddress in first_batch:
             toAddresses = addresses[offset:offset+second_wave_size]
             # print("tokens from {:}, to {:}, amount {:f}".format(fromAddress, toAddresses, token_amount))
-            calls.append(self.syscoin.send_many_tokens(fromAddress, toAddresses,
-                                                       token_amounts))
+            self.syscoin.send_many_tokens(fromAddress, toAddresses,
+                                                       token_amounts)
             offset += second_wave_size
-        asyncio.gather(*calls)
         self.wait_for_block()
-        calls = []
         offset = first_wave_size
         for fromAddress in first_batch:
             # print("sys from {:}, to {:}, amount {:f}".format(fromAddress, toAddresses, sys_amount))
-            calls.append(self.syscoin.send_many_sys(fromAddress, toAddresses,
-                                                    sys_amounts))
+            self.syscoin.send_many_sys(fromAddress, toAddresses,
+                                                    sys_amounts)
             offset += second_wave_size
-        asyncio.gather(*calls)
 
     def send_funds_single(self, addresses):
         calls = []
