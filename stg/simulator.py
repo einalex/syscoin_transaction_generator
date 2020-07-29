@@ -19,7 +19,6 @@ class Simulator(object):
         self.sys_fee = 0.00002750
         self.token_fee = 0.00005820
         self.num_nodes = num_nodes
-        self.minutes = {int(key) for key in pattern.keys()}
         try:
             self.set_pattern(pattern)
         except Exception:
@@ -29,6 +28,7 @@ class Simulator(object):
 
     def set_pattern(self, pattern):
         self.pattern = pattern
+        self.minutes = {int(key) for key in pattern.keys()}
         self.num_addresses = ceil(max(list(pattern.values()))/12)
         self.number_of_transactions = sum(pattern.values())
         self.duration = max(self.minutes) - min(self.minutes)
