@@ -16,8 +16,8 @@ class Simulator(object):
         self.syscoin = syscoin
         self.assetGuid = assetGuid
         self.value = value
-        self.sys_tx_fee = 0.00002750
-        self.token_tx_fee = 0.00005820
+        self.sys_fee = 0.00002750
+        self.token_fee = 0.00005820
         self.num_nodes = num_nodes
         self.minutes = {int(key) for key in pattern.keys()}
         try:
@@ -60,53 +60,85 @@ class Simulator(object):
             time.sleep(1)
         logger.info("Reached block {:d}.".format(second))
 
+    def multi_token_fee(self, recipients):
+        return (5300 + 600 * recipients) / 10**8
+
+    def multi_sys_fee(self, recipients):
+        return (1100 + 310 * recipients) / 10**8
+
     def distribute_funds_single(self, filename="100k-address-set3.json"):
         # load addresses
         with open(filename) as f:
             addresses = json.load(f)
-        first_wave_size = 500
-
-        second_wave_size = int(len(addresses) / first_wave_size)
-        addresses = []
+        first_wave_size = 4
+        second_wave_size = 250
+        third_wave_size = 250
         first_batch = addresses[:first_wave_size]
-        sys_amount = ((first_wave_size + 1) * self.sys_tx_fee
-                      + (2 * first_wave_size + 1) * self.token_tx_fee)
+        sys_amount = \
+            self.multi_sys_fee(second_wave_size) \
+            + self.multi_token_fee(second_wave_size) \
+            + second_wave_size * self.multi_sys_fee(third_wave_size) \
+            + second_wave_size * self.multi_token_fee(third_wave_size) \
+            + second_wave_size * third_wave_size * self.token_fee
+        first_batch = addresses[:first_wave_size]
         sys_amounts = [sys_amount] * first_wave_size
-        token_amount = (first_wave_size + 1) * self.value
+        token_amount = second_wave_size * third_wave_size * self.value
         token_amounts = [token_amount] * first_wave_size
-        print("tokens from {:}, to {:}, amount {:f}".format(self.hub_address, first_batch, token_amount))
         self.syscoin.send_many_tokens(self.hub_address, first_batch,
                                       token_amounts)
         self.wait_for_block()
-        print("sys from {:}, to {:}, amount {:f}".format(self.hub_address, first_batch, sys_amount))
-        self.syscoin.send_many_sys(self.hub_address, first_batch,
-                                   sys_amounts)
+        self.syscoin.send_many_sys(self.hub_address, first_batch, sys_amounts)
         self.wait_for_block()
         # send second wave
         offset = first_wave_size
-        sys_amount = self.token_tx_fee
+        sys_amount = \
+            self.multi_sys_fee(third_wave_size) \
+            + self.multi_token_fee(third_wave_size) \
+            + third_wave_size * self.token_fee
+
         sys_amounts = [sys_amount] * second_wave_size
-        token_amount = self.value
+        token_amount = third_wave_size * self.value
         token_amounts = [token_amount] * second_wave_size
         for fromAddress in first_batch:
             toAddresses = addresses[offset:offset+second_wave_size]
             # print("tokens from {:}, to {:}, amount {:f}".format(fromAddress, toAddresses, token_amount))
             self.syscoin.send_many_tokens(fromAddress, toAddresses,
-                                                       token_amounts)
+                                          token_amounts)
             offset += second_wave_size
         self.wait_for_block()
         offset = first_wave_size
         for fromAddress in first_batch:
+            toAddresses = addresses[offset:offset+second_wave_size]
             # print("sys from {:}, to {:}, amount {:f}".format(fromAddress, toAddresses, sys_amount))
             self.syscoin.send_many_sys(fromAddress, toAddresses,
-                                                    sys_amounts)
+                                       sys_amounts)
             offset += second_wave_size
+        self.wait_for_block()
+        second_batch = addresses[first_wave_size:first_wave_size*second_wave_size]
+        # send third wave
+        offset = first_wave_size + first_wave_size * second_wave_size
+        sys_amount = self.token_fee
+        sys_amounts = [sys_amount] * third_wave_size
+        token_amount = self.value
+        token_amounts = [token_amount] * third_wave_size
+        for fromAddress in second_batch:
+            toAddresses = addresses[offset:offset+third_wave_size]
+            # print("tokens from {:}, to {:}, amount {:f}".format(fromAddress, toAddresses, token_amount))
+            self.syscoin.send_many_tokens(fromAddress, toAddresses,
+                                          token_amounts)
+            offset += third_wave_size
+        self.wait_for_block()
+        offset = first_wave_size + first_wave_size * second_wave_size
+        for fromAddress in second_batch:
+            toAddresses = addresses[offset:offset+third_wave_size]
+            # print("sys from {:}, to {:}, amount {:f}".format(fromAddress, toAddresses, sys_amount))
+            self.syscoin.send_many_sys(fromAddress, toAddresses,
+                                       sys_amounts)
+            offset += third_wave_size
 
     def send_funds_single(self, addresses):
-        calls = []
         for fromAddress in addresses:
-            calls.append(self.syscoin.send_tokens(self.value, fromAddress, self.hub_address))
-        asyncio.gather(*calls)
+            self.syscoin.send_tokens(self.value, fromAddress, self.hub_address)
 
     def get_node_patterns(self):
         node_patterns = []
