@@ -27,7 +27,7 @@ class Syscoin(object):
         answer = self.assetAllocationBalances(self.guid, addresses)
         if answer.ok:
             for address, balance in answer.json()["result"].items():
-                self.send_tokens(balance, addressTo, address)
+                self.send_tokens(balance, address, addressTo)
         # send sys
         answer = self.callFunction("listaddressgroupings")
         amount = 0
@@ -86,7 +86,7 @@ class Syscoin(object):
 
     def send_tokens_final(self, amount, addressTo):
         addressFrom = self.addresses.pop()
-        return (addressFrom, self.send_tokens(amount, addressTo, addressFrom))
+        return (addressFrom, self.send_tokens(amount, addressFrom, addressTo))
 
     def get_sys_balance(self):
         answer = self.getBalance()

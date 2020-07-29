@@ -243,7 +243,7 @@ class Satellite(StateMachine):
         logger.info("Pattern finished")
         self.send_success()
         self.send_report()
-        self.syscoin.cleanup(self.simulator.hub_address)
+        # self.syscoin.cleanup(self.simulator.hub_address)
 
     def wait_for_blocks(self, count):
         blockheight = self.syscoin.get_blockheight() + count

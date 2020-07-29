@@ -17,7 +17,7 @@ class Simulator(object):
         self.assetGuid = assetGuid
         self.value = value
         self.sys_fee = 0.00002750
-        self.token_fee = 0.00005820
+        self.token_fee = 0.00001820
         self.num_nodes = num_nodes
         try:
             self.set_pattern(pattern)
