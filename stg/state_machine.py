@@ -94,6 +94,7 @@ class Hub(StateMachine):
             logger.info("Calculating node patterns")
             patterns, totals = self.calculate_fund_distribution()
 
+
             # logger.info("Collecting target addresses")
             # addresses = self.get_addresses(totals)
             # logger.info("Starting fund distribution")
@@ -150,7 +151,7 @@ class Hub(StateMachine):
         for index in range(len(patterns)):
             message = self.communicator.create_single_message(
                                 PATTERN, connections[index],
-                                (self.simulator.value, patterns[index]))
+                                (index, self.simulator.value, patterns[index]))
             self.communicator.send(message)
         messages = self.communicator.receive()
         for message in messages:
@@ -158,7 +159,8 @@ class Hub(StateMachine):
                 logger.error(("Received unexpected "
                               "message type: {:}").format(message["type"]))
                 sys.exit(6)
-        message = self.communicator.create_message(SIGNAL_START, None)
+        message = self.communicator.create_message(
+                SIGNAL_START, self.syscoin.get_blockheight()+2)
         self.communicator.send(message)
 
     def get_addresses(self, totals):
@@ -225,17 +227,19 @@ class Satellite(StateMachine):
                              "the communication channels: ")))
         self.start_communicator(key)
         # wait for hub to ask for addresses
-        logger.info("Waiting for address request")
-        self.get_addresses()
-        logger.info("Sent addresses, waiting for transaction pattern")
+        # logger.info("Waiting for address request")
+        # self.get_addresses()
+        # logger.info("Sent addresses, waiting for transaction pattern")
+        logger.info("Waiting for transaction pattern")
         self.get_pattern()
         logger.info("Got pattern, waiting for blockchain")
-        self.wait_for_blocks(2)
+        self.wait_for_block(self.start_block)
         # self.check_funds() # TODO: check requirements of patterns, wait for confirmations
         logger.info("Ready to send")
         self.report_ready()
         self.wait_for_start()
         logger.info("Starting pattern")
+        self.wait_for_block(self.start_block)
         self.start_pattern()
         logger.info("Pattern finished")
         self.send_success()
@@ -247,11 +251,16 @@ class Satellite(StateMachine):
         while (self.syscoin.get_blockheight() < blockheight):
             sleep(60)
 
+    def wait_for_block(self, height):
+        while (self.syscoin.get_blockheight() < height):
+            sleep(1)
+
     def get_pattern(self):
         message = self.communicator.receive()[0]
         if message["type"] == PATTERN:
-            value, pattern = message["payload"]
+            node_id, value, pattern = message["payload"]
             self.simulator.value = value
+            self.simulator.node_id = node_id
             self.simulator.set_pattern(pattern)
         else:
             logger.error(("Received unexpected "
@@ -266,12 +275,13 @@ class Satellite(StateMachine):
     def wait_for_start(self):
         message = self.communicator.receive()[0]
         if not message["type"] == SIGNAL_START:
+            self.start_block = message["payload"]
             logger.error(("Received unexpected "
                           "message type: {:}").format(message["type"]))
             sys.exit(6)
 
     def start_pattern(self):
-        self.simulator.minion_start()
+        self.simulator.minion_start(self.args.addrfile)
 
     def send_success(self):
         message = self.communicator.create_message(SIGNAL_SUCCESS,

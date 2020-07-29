@@ -220,14 +220,22 @@ class Simulator(object):
                 if not self.blocks[node_id]:
                     del(self.blocks[node_id])
 
-    def minion_start(self):
-        current = self.syscoin.get_blockheight()
-        delay = 0
-        self.start = current + delay
-        self.blocks = sorted(self.pattern.keys())
-        while self.blocks:
-            self.minion_loop()
-            time.sleep(1)
+    def minion_start(self, filename):
+        transaction_count = len(self.pattern[1])
+        offset = self.node_id * transaction_count
+        with open(filename) as f:
+            addresses = json.load(f)
+        addresses = addresses[offset:offset+transaction_count]
+        for address in addresses:
+            self.syscoin.send_tokens(self.value, address, self.hub_address)
+    # def minion_start(self):
+    #     current = self.syscoin.get_blockheight()
+    #     delay = 0
+    #     self.start = current + delay
+    #     self.blocks = sorted(self.pattern.keys())
+    #     while self.blocks:
+    #         self.minion_loop()
+    #         time.sleep(1)
 
     def minion_loop(self):
         source_length = len(self.syscoin.addresses)
@@ -236,11 +244,11 @@ class Simulator(object):
             for index in range(self.pattern[self.blocks[0]]):
                 fromAddress = self.syscoin.addresses[index % source_length]
                 txid = self.syscoin.send_tokens(
-                    self.value, fromAddress, self.hubAddress)
+                    self.value, fromAddress, self.hub_address)
             del(self.blocks[0])
             log = "{:d}: Node {:d} sent {:.2f} from {:} to {:} - {:}".format(
                     now, self.node_id, self.value,
-                    fromAddress, self.hubAddress, txid)
+                    fromAddress, self.hub_address, txid)
             print(log)
             self.report += "\n" + log
 
