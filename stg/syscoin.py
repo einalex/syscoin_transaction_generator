@@ -1,5 +1,5 @@
 import requests
-
+import asyncio
 
 class Syscoin(object):
 
@@ -43,7 +43,7 @@ class Syscoin(object):
         if answer.ok:
             return answer.json()["result"]
 
-    def generate_addresses(self, number_of_addresses):
+    async def generate_addresses(self, number_of_addresses):
         addresses = []
         for index in range(number_of_addresses):
             address = self.getNewAddress(label="sim_{:d}".format(index))
@@ -51,7 +51,7 @@ class Syscoin(object):
         self.addresses += addresses
         return addresses
 
-    def send_tokens(self, amount, addressFrom, addressTo):
+    async def send_tokens(self, amount, addressFrom, addressTo):
         try:
             hex = self.assetAllocationSend(self.guid, addressFrom,
                                            addressTo, amount)
@@ -60,7 +60,7 @@ class Syscoin(object):
         except Exception as err:
             print(err)
 
-    def send_sys(self, amount, addressFrom, addressTo):
+    async def send_sys(self, amount, addressFrom, addressTo):
         try:
             hex = self.sendFrom(addressFrom, addressTo, amount)
             transaction = self.signRawTransactionWithWallet(hex)
@@ -68,7 +68,7 @@ class Syscoin(object):
         except Exception as err:
             print(err)
 
-    def send_many_sys(self, fromAddress, toAddresses, amounts):
+    async def send_many_sys(self, fromAddress, toAddresses, amounts):
         try:
             hex = self.sendMany(dict(zip(toAddresses, amounts)))
             transaction = self.signRawTransactionWithWallet(hex)
@@ -76,12 +76,12 @@ class Syscoin(object):
         except Exception as err:
             print(err)
 
-    def send_many_tokens(self, addressFrom, toAddresses, amounts):
+    async def send_many_tokens(self, addressFrom, toAddresses, amounts):
         try:
             recipients = [{"address": address, "amount": amount}
                           for address, amount in zip(toAddresses, amounts)]
             hex = self.assetAllocationSendMany(self.guid, addressFrom,
-                                               recipients, "")
+                                               recipients)
             transaction = self.signRawTransactionWithWallet(hex)
             return self.sendRawTransaction(transaction)  # returns txid
         except Exception as err:
@@ -148,7 +148,7 @@ class Syscoin(object):
     def assetAllocationSendMany(self, assetGuid, addressFrom, targets):
         answer = self.callFunction("assetallocationsendmany",
                                    {"params": [assetGuid, addressFrom,
-                                               targets]})
+                                               targets, ""]})
         if answer.ok:
             return answer.json()["result"]["hex"]
         else:

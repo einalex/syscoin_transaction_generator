@@ -81,32 +81,35 @@ class Hub(StateMachine):
         self.start_simulator()
         # calculate required sys fees and token balances
         self.check_funds()
-        key = self.get_user_consent()
-        self.communicator = Communicator(self.args.sat, self.args.port, key)
+        if self.args.addrfile:
+            self.simulator.distribute_funds_single(self.args.addrfile)
+            sys.exit(0)
+        else:
+            key = self.get_user_consent()
+            self.communicator = Communicator(self.args.sat, self.args.port, key)
 
-        logger.info("Creating source addresses and distributing funds")
-        self.simulator.distribute_funds()
+            # logger.info("Creating source addresses and distributing funds")
+            # self.simulator.distribute_funds()
 
-        # TODO: ask satellite systems for addresses
-        logger.info("Calculating node patterns")
-        patterns, totals = self.calculate_fund_distribution()
+            logger.info("Calculating node patterns")
+            patterns, totals = self.calculate_fund_distribution()
 
-        logger.info("Collecting target addresses")
-        addresses = self.get_addresses(totals)
-        logger.info("Starting fund distribution")
-        self.simulator.hub_start(patterns, addresses)
-        # for address in addresses:
-        #     self.syscoin.send_tokens(self.simulator.value, address,
-        #                              self.args.addr)
-        #     self.syscoin.sendToAddress(address, self.simulator.tx_fee)
-        logger.info("Signalling for fund return")
-        self.start_pattern(patterns, self.communicator.connection_list)
-        self.wait_for_pattern_end()
-        logger.info("Waiting for reports")
-        reports = self.wait_for_report()
-        self.output_report(reports)
-        logger.info("Program ends")
-        # TODO: write logfile?
+            # logger.info("Collecting target addresses")
+            # addresses = self.get_addresses(totals)
+            # logger.info("Starting fund distribution")
+            # self.simulator.hub_start(patterns, addresses)
+            # for address in addresses:
+            #     self.syscoin.send_tokens(self.simulator.value, address,
+            #                              self.args.addr)
+            #     self.syscoin.sendToAddress(address, self.simulator.tx_fee)
+            logger.info("Signalling for fund return")
+            self.start_pattern(patterns, self.communicator.connection_list)
+            self.wait_for_pattern_end()
+            logger.info("Waiting for reports")
+            reports = self.wait_for_report()
+            self.output_report(reports)
+            logger.info("Program ends")
+            # TODO: write logfile?
 
     def calculate_fund_distribution(self):
         node_patterns = self.simulator.get_node_patterns()

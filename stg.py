@@ -25,6 +25,10 @@ if __name__ == "__main__":
     parser.add_argument('--port', default=9999, help='The port to use')
     parser.add_argument('--fee', default=0.0001,
                         help='Transaction fee per kilobyte')
+    parser.add_argument('--prefund', default=True,
+                        help='Distribute coins')
+    parser.add_argument('--addrfile', default="",
+                        help='File containing addresses')
 
     args = parser.parse_args()
     # account for argparse inability to create a list of strings
