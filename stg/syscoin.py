@@ -69,9 +69,7 @@ class Syscoin(object):
 
     def send_many_sys(self, fromAddress, toAddresses, amounts):
         try:
-            hex = self.sendMany(dict(zip(toAddresses, amounts)))
-            transaction = self.signRawTransactionWithWallet(hex)
-            return self.sendRawTransaction(transaction)  # returns txid
+            return self.sendMany(dict(zip(toAddresses, amounts)))
         except Exception as err:
             print(err)
 
@@ -101,7 +99,7 @@ class Syscoin(object):
     def sendMany(self, targets):
         answer = self.callFunction("sendmany", {"params": ["", targets]})
         if answer.ok:
-            return answer.json()["result"]["hex"]
+            return answer.json()["result"]
         else:
             raise Exception(answer.json()["error"]["message"])
 

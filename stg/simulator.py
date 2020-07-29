@@ -71,8 +71,9 @@ class Simulator(object):
         with open(filename) as f:
             addresses = json.load(f)
         first_wave_size = 4
-        second_wave_size = 25
-        third_wave_size = 25
+        second_wave_size = 4
+        third_wave_size = 4
+        logger.info("send first wave")
         first_batch = addresses[:first_wave_size]
         sys_amount = \
             round(self.multi_sys_fee(second_wave_size)
@@ -89,7 +90,7 @@ class Simulator(object):
         self.wait_for_block()
         self.syscoin.send_many_sys(self.hub_address, first_batch, sys_amounts)
         self.wait_for_block()
-        # send second wave
+        logger.info("send second wave")
         offset = first_wave_size
         sys_amount = \
             round(self.multi_sys_fee(third_wave_size)
@@ -116,6 +117,7 @@ class Simulator(object):
         self.wait_for_block()
         second_batch = addresses[first_wave_size:first_wave_size*second_wave_size]
         # send third wave
+        logger.info("send third wave")
         offset = first_wave_size + first_wave_size * second_wave_size
         sys_amount = self.token_fee
         sys_amounts = [sys_amount] * third_wave_size
@@ -135,6 +137,7 @@ class Simulator(object):
             self.syscoin.send_many_sys(fromAddress, toAddresses,
                                        sys_amounts)
             offset += third_wave_size
+        logger.info("done")
 
     def send_funds_single(self, addresses):
         for fromAddress in addresses:
