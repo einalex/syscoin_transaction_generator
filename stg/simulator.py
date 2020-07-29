@@ -33,8 +33,8 @@ class Simulator(object):
         self.number_of_transactions = sum(pattern.values())
         self.duration = max(self.minutes) - min(self.minutes)
         self.node_count = min(self.num_nodes, self.number_of_transactions)
-        self.gas_cost = self.sys_tx_fee * (2 * self.number_of_transactions) \
-            + self.token_tx_fee * (2 * self.number_of_transactions)
+        self.gas_cost = self.sys_fee * (2 * self.number_of_transactions) \
+            + self.token_fee * (2 * self.number_of_transactions)
         self.token_amount = self.value * self.number_of_transactions
 
     def distribute_funds(self):
@@ -43,8 +43,8 @@ class Simulator(object):
         counts = [at_least] * self.num_addresses
         rest = self.number_of_transactions % self.num_addresses
         counts = list(map(lambda c: c + 1, counts[:rest])) + counts[rest:]
-        sys_amounts = list(map(lambda c: c * 2 * self.token_tx_fee
-                               + c * self.sys_tx_fee, counts))
+        sys_amounts = list(map(lambda c: c * 2 * self.token_fee
+                               + c * self.sys_fee, counts))
         token_amounts = list(map(lambda c: c * self.value, counts))
         self.syscoin.send_many_tokens(self.hub_address, self.syscoin.addresses,
                                       token_amounts)
