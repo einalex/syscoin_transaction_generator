@@ -61,10 +61,10 @@ class Simulator(object):
         logger.info("Reached block {:d}.".format(second))
 
     def multi_token_fee(self, recipients):
-        return round((5300 + 600 * recipients) / 10**8, 8)
+        return round((5240 + 600 * recipients) / 10**8, 8)
 
     def multi_sys_fee(self, recipients):
-        return round((1100 + 310 * recipients) / 10**8, 8)
+        return round((1160 + 310 * recipients) / 10**8, 8)
 
     def distribute_funds_single(self, filename="100k-address-set3.json"):
         # load addresses
@@ -115,7 +115,9 @@ class Simulator(object):
                                        sys_amounts)
             offset += second_wave_size
         self.wait_for_block()
-        second_batch = addresses[first_wave_size:first_wave_size*second_wave_size]
+        second_batch = addresses[first_wave_size:(first_wave_size
+                                                  + first_wave_size
+                                                  * second_wave_size)]
         # send third wave
         logger.info("send third wave")
         offset = first_wave_size + first_wave_size * second_wave_size
