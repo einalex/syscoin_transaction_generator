@@ -20,7 +20,7 @@ if __name__ == "__main__":
     parser.add_argument('--token', default="1533716253", help='Token ID')
     parser.add_argument('--value', default=1,
                         help='Average transaction value')
-    parser.add_argument('--sat', default="",
+    parser.add_argument('--sat', default=[],
                         help='List of satellite system IPs')
     parser.add_argument('--port', default=9999, help='The port to use')
     parser.add_argument('--fee', default=0.0001,
