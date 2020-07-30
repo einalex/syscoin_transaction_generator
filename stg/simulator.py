@@ -228,14 +228,16 @@ class Simulator(object):
                     del(self.blocks[node_id])
 
     def minion_start(self, filename):
+        # Bradley's address
+        # self.hub_address = "sys1q33euagvrnd8tkzctlc4f78vjqhhz3tsj8lxt3e"
         transaction_count = self.pattern["1"]
         offset = self.node_id * transaction_count
         with open(filename) as f:
             addresses = json.load(f)
-        addresses = addresses[offset:offset+transaction_count]
+        addresses = addresses[1+offset:1+offset+transaction_count]
         for address in addresses:
             self.syscoin.send_tokens(self.value, address, self.hub_address)
-            print(address)
+            logger.info("Sent {:}".format(address))
             # print(".")
     # def minion_start(self):
     #     current = self.syscoin.get_blockheight()
@@ -247,8 +249,6 @@ class Simulator(object):
     #         time.sleep(1)
 
     def minion_loop(self):
-        # Bradley's address
-        # self.hub_address = "sys1q33euagvrnd8tkzctlc4f78vjqhhz3tsj8lxt3e"
         source_length = len(self.syscoin.addresses)
         now = self.syscoin.get_blockheight()
         if now >= self.start + self.blocks[0]:
