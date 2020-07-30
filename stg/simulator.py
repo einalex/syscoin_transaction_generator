@@ -235,7 +235,8 @@ class Simulator(object):
         addresses = addresses[offset:offset+transaction_count]
         for address in addresses:
             self.syscoin.send_tokens(self.value, address, self.hub_address)
-            print(".")
+            print(address)
+            # print(".")
     # def minion_start(self):
     #     current = self.syscoin.get_blockheight()
     #     delay = 0
