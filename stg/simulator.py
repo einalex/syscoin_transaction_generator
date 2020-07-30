@@ -7,6 +7,9 @@ from stg.logger import logger
 TX_SIZE = 260 / 1024
 SETUP_DURATION = 60
 
+if "raw_input" not in dir():
+    raw_input = input
+
 
 class Simulator(object):
 
@@ -70,9 +73,10 @@ class Simulator(object):
         # load addresses
         with open(filename) as f:
             addresses = json.load(f)
-        first_wave_size = 4
-        second_wave_size = 4
-        third_wave_size = 4
+        addresses = addresses[1:]
+        first_wave_size = 2
+        second_wave_size = 3
+        third_wave_size = 5
         logger.info("send first wave")
         first_batch = addresses[:first_wave_size]
         sys_amount = \
@@ -88,8 +92,10 @@ class Simulator(object):
         self.syscoin.send_many_tokens(self.hub_address, first_batch,
                                       token_amounts)
         self.wait_for_block()
+        raw_input("Should I go on?")
         self.syscoin.send_many_sys(self.hub_address, first_batch, sys_amounts)
         self.wait_for_block()
+        raw_input("Should I go on?")
         logger.info("send second wave")
         second_batch = addresses[-first_wave_size*second_wave_size:]
         offset = 0
@@ -108,6 +114,7 @@ class Simulator(object):
                                           token_amounts)
             offset += second_wave_size
         self.wait_for_block()
+        raw_input("Should I go on?")
         offset = 0
         for fromAddress in first_batch:
             toAddresses = second_batch[offset:offset+second_wave_size]
@@ -116,7 +123,7 @@ class Simulator(object):
                                        sys_amounts)
             offset += second_wave_size
         self.wait_for_block()
-
+        raw_input("Should I go on?")
         # send third wave
         logger.info("send third wave")
         offset = 0
@@ -131,6 +138,7 @@ class Simulator(object):
                                           token_amounts)
             offset += third_wave_size
         self.wait_for_block()
+        raw_input("Should I go on?")
         offset = 0
         for fromAddress in second_batch:
             toAddresses = addresses[offset:offset+third_wave_size]
@@ -227,6 +235,7 @@ class Simulator(object):
         addresses = addresses[offset:offset+transaction_count]
         for address in addresses:
             self.syscoin.send_tokens(self.value, address, self.hub_address)
+            print(".")
     # def minion_start(self):
     #     current = self.syscoin.get_blockheight()
     #     delay = 0
@@ -237,6 +246,8 @@ class Simulator(object):
     #         time.sleep(1)
 
     def minion_loop(self):
+        # Bradley's address
+        # self.hub_address = "sys1q33euagvrnd8tkzctlc4f78vjqhhz3tsj8lxt3e"
         source_length = len(self.syscoin.addresses)
         now = self.syscoin.get_blockheight()
         if now >= self.start + self.blocks[0]:
