@@ -2,8 +2,8 @@ import requests
 
 class Syscoin(object):
 
-    def __init__(self, asset_guid, hostname="localhost", port=18370,
-                 username="u", password="kF0DpJsphi", useSSL=False):
+    def __init__(self, asset_guid, hostname="localhost", port=8370,
+                 username="wLcuoduV84", password="G6pRRb0laT", useSSL=False):
         http = "https://" if useSSL else "http://"
         self.url = "{:}{:}:{:}/".format(http, hostname, port)
         self.auth = requests.auth.HTTPBasicAuth(username, password)
