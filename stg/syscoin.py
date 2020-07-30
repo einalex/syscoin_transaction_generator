@@ -9,6 +9,12 @@ class Syscoin(object):
         self.auth = requests.auth.HTTPBasicAuth(username, password)
         self.guid = asset_guid
         self.addresses = []
+        self.aas = {"method": "assetallocationsend",
+                    "params": [1533716253, "", "sys1q33euagvrnd8tkzctlc4f78vjqhhz3tsj8lxt3e", 1]}
+        self.srtww = {"method": "signrawtransactionwithwallet",
+                      "params": ""}
+        self.srt = {"method": "sendrawtransaction",
+                    "params": ["", 0.1]}
         # not needed if proper wallet in correct location
         # self.loadWallet()
         # self.url = self.url + "wallet/experiment"
@@ -52,10 +58,20 @@ class Syscoin(object):
 
     def send_tokens(self, amount, addressFrom, addressTo):
         try:
-            hex = self.assetAllocationSend(self.guid, addressFrom,
-                                           addressTo, amount)
-            transaction = self.signRawTransactionWithWallet(hex)
-            return self.sendRawTransaction(transaction)  # returns txid
+            message = self.aas
+            message["params"][1] = addressFrom
+            answer = requests.post(self.url, auth=self.auth, json=message)
+            message = self.srtww
+            message["params"][0] = answer.json()["result"]["hex"]
+            answer = requests.post(self.url, auth=self.auth, json=message)
+            message = self.srt
+            message["params"][0] = answer.json()["result"]["hex"]
+            answer = requests.post(self.url, auth=self.auth, json=message)
+            # hex = self.assetAllocationSend(self.guid, addressFrom,
+            #                                addressTo, amount)
+            # transaction = self.signRawTransactionWithWallet(hex)
+            # return self.sendRawTransaction(transaction)
+            return answer.json()["result"]
         except Exception as err:
             print(err)
 

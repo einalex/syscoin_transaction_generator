@@ -6,6 +6,7 @@ from stg.logger import logger
 from stg.scrambler import Scrambler
 from stg.messages import createMessage
 
+
 class Coder(object):
 
     def encode(self, obj):

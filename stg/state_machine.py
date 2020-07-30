@@ -160,7 +160,7 @@ class Hub(StateMachine):
                               "message type: {:}").format(message["type"]))
                 sys.exit(6)
         message = self.communicator.create_message(
-                SIGNAL_START, self.syscoin.get_blockheight()+2)
+                SIGNAL_START, self.syscoin.get_blockheight()+1)
         self.communicator.send(message)
 
     def get_addresses(self, totals):

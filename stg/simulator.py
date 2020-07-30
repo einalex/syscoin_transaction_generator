@@ -74,9 +74,9 @@ class Simulator(object):
         with open(filename) as f:
             addresses = json.load(f)
         addresses = addresses[1:]
-        first_wave_size = 2
-        second_wave_size = 3
-        third_wave_size = 5
+        first_wave_size = 4
+        second_wave_size = 255
+        third_wave_size = 255
         logger.info("send first wave")
         first_batch = addresses[:first_wave_size]
         sys_amount = \
@@ -229,15 +229,15 @@ class Simulator(object):
 
     def minion_start(self, filename):
         # Bradley's address
-        # self.hub_address = "sys1q33euagvrnd8tkzctlc4f78vjqhhz3tsj8lxt3e"
+        self.hub_address = "sys1q33euagvrnd8tkzctlc4f78vjqhhz3tsj8lxt3e"
         transaction_count = self.pattern["1"]
         offset = self.node_id * transaction_count
         with open(filename) as f:
             addresses = json.load(f)
         addresses = addresses[1+offset:1+offset+transaction_count]
         for address in addresses:
-            self.syscoin.send_tokens(self.value, address, self.hub_address)
-            logger.info("Sent {:}".format(address))
+            txid = self.syscoin.send_tokens(self.value, address, self.hub_address)
+            logger.info("Sent {:}".format(txid))
             # print(".")
     # def minion_start(self):
     #     current = self.syscoin.get_blockheight()
