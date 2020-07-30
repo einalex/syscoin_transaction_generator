@@ -75,8 +75,8 @@ class Simulator(object):
             addresses = json.load(f)
         addresses = addresses[1:]
         first_wave_size = 4
-        second_wave_size = 255
-        third_wave_size = 255
+        second_wave_size = 5
+        third_wave_size = 6
         logger.info("send first wave")
         first_batch = addresses[:first_wave_size]
         sys_amount = \
