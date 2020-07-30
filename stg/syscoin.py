@@ -12,7 +12,7 @@ class Syscoin(object):
         self.aas = {"method": "assetallocationsend",
                     "params": [1533716253, "", "sys1q33euagvrnd8tkzctlc4f78vjqhhz3tsj8lxt3e", 1]}
         self.srtww = {"method": "signrawtransactionwithwallet",
-                      "params": ""}
+                      "params": [""]}
         self.srt = {"method": "sendrawtransaction",
                     "params": ["", 0.1]}
         # not needed if proper wallet in correct location
