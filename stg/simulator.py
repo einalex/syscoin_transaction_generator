@@ -239,7 +239,6 @@ class Simulator(object):
         for address in addresses:
             transactions.append(self.syscoin.prepare_send(self.value, address,
                                                           self.hub_address))
-            logger.info("Sent {:}".format(txid))
         with open("transactions.json") as f:
             json.dump(transactions, f)
 
