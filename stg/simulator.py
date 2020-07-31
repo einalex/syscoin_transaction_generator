@@ -239,7 +239,7 @@ class Simulator(object):
         for address in addresses:
             transactions.append(self.syscoin.prepare_send(self.value, address,
                                                           self.hub_address))
-        with open("transactions.json") as f:
+        with open("transactions.json", "w") as f:
             json.dump(transactions, f)
 
     def minion_start(self, filename):

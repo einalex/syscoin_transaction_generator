@@ -159,6 +159,7 @@ class Hub(StateMachine):
                 logger.error(("Received unexpected "
                               "message type: {:}").format(message["type"]))
                 sys.exit(6)
+        raw_input("Should I go on?")
         message = self.communicator.create_message(
                 SIGNAL_START, self.syscoin.get_blockheight()+1)
         self.communicator.send(message)
@@ -232,7 +233,7 @@ class Satellite(StateMachine):
         # logger.info("Sent addresses, waiting for transaction pattern")
         logger.info("Waiting for transaction pattern")
         self.get_pattern()
-        logger.info("Got pattern, waiting for blockchain")
+        logger.info("Got pattern, creating transactions")
         # self.check_funds() # TODO: check requirements of patterns, wait for confirmations
         self.simulator.prepare(self.args.addrfile)
         logger.info("Ready to send")

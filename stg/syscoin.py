@@ -76,12 +76,14 @@ class Syscoin(object):
             print(err)
 
     def prepare_send(self, amount, addressFrom, addressTo):
+        print("Amount {:}\nFrom {L}\nTo{:}".format(amount, addressFrom, addressTo))
         message = self.aas
         message["params"][1] = addressFrom
         answer = requests.post(self.url, auth=self.auth, json=message)
         message = self.srtww
         message["params"][0] = answer.json()["result"]["hex"]
-        return requests.post(self.url, auth=self.auth, json=message)
+        answer = requests.post(self.url, auth=self.auth, json=message)
+        return answer.json()["result"]["hex"]
 
     def send_sys(self, amount, addressFrom, addressTo):
         try:
