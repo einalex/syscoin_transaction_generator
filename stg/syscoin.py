@@ -75,6 +75,14 @@ class Syscoin(object):
         except Exception as err:
             print(err)
 
+    def prepare_send(self, amount, addressFrom, addressTo):
+        message = self.aas
+        message["params"][1] = addressFrom
+        answer = requests.post(self.url, auth=self.auth, json=message)
+        message = self.srtww
+        message["params"][0] = answer.json()["result"]["hex"]
+        return requests.post(self.url, auth=self.auth, json=message)
+
     def send_sys(self, amount, addressFrom, addressTo):
         try:
             hex = self.sendFrom(addressFrom, addressTo, amount)

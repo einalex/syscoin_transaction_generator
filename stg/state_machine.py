@@ -234,6 +234,7 @@ class Satellite(StateMachine):
         self.get_pattern()
         logger.info("Got pattern, waiting for blockchain")
         # self.check_funds() # TODO: check requirements of patterns, wait for confirmations
+        self.simulator.prepare(self.args.addrfile)
         logger.info("Ready to send")
         self.report_ready()
         self.wait_for_start()

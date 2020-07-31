@@ -227,7 +227,7 @@ class Simulator(object):
                 if not self.blocks[node_id]:
                     del(self.blocks[node_id])
 
-    def minion_start(self, filename):
+    def prepare(self, filename):
         # Bradley's address
         self.hub_address = "sys1q33euagvrnd8tkzctlc4f78vjqhhz3tsj8lxt3e"
         transaction_count = self.pattern["1"]
@@ -235,9 +235,30 @@ class Simulator(object):
         with open(filename) as f:
             addresses = json.load(f)
         addresses = addresses[1+offset:1+offset+transaction_count]
+        transactions = []
         for address in addresses:
-            txid = self.syscoin.send_tokens(self.value, address, self.hub_address)
+            transactions.append(self.syscoin.prepare_send(self.value, address,
+                                                          self.hub_address))
             logger.info("Sent {:}".format(txid))
+        with open("transactions.json") as f:
+            json.dump(transactions, f)
+
+    def minion_start(self, filename):
+        # Bradley's address
+        # self.hub_address = "sys1q33euagvrnd8tkzctlc4f78vjqhhz3tsj8lxt3e"
+        # transaction_count = self.pattern["1"]
+        # offset = self.node_id * transaction_count
+        # with open(filename) as f:
+        #     addresses = json.load(f)
+        # addresses = addresses[1+offset:1+offset+transaction_count]
+        # for address in addresses:
+        #     txid = self.syscoin.send_tokens(self.value, address, self.hub_address)
+        #     logger.info("Sent {:}".format(txid))
+        transactions = []
+        with open("transactions.json") as f:
+            transactions = json.load(f)
+        for transaction in transactions:
+            self.syscoin.sendRawTransaction(transaction)
             # print(".")
     # def minion_start(self):
     #     current = self.syscoin.get_blockheight()
