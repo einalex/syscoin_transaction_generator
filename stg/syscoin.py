@@ -76,7 +76,6 @@ class Syscoin(object):
             print(err)
 
     def prepare_send(self, amount, addressFrom, addressTo):
-        print("Amount {:}\nFrom {L}\nTo{:}".format(amount, addressFrom, addressTo))
         message = self.aas
         message["params"][1] = addressFrom
         answer = requests.post(self.url, auth=self.auth, json=message)
